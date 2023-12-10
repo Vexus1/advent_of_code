@@ -2,7 +2,7 @@ import pandas as pd
 import os 
 
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
-data = pd.read_csv(f"input.txt", header=None)[0].to_list()
+data = pd.read_csv(f"inputs/day1.txt", header=None)[0].to_list()
 
 # PART ONE
 def two_pointers(word):
