@@ -1,52 +1,47 @@
 from dataclasses import dataclass
 import os
+from collections import defaultdict
 
 import pandas as pd
 from pandas import DataFrame
 from icecream import ic
 
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
+
 @dataclass
-class Scratchcards:
+class ScratchcardsOne:
     data: DataFrame
 
-    def clear_data(self) -> list[list[int]]:
-        data = self.data.to_numpy()
-        all_nums = []
-        slice_index = [i for i in data[0][0]].index(':')
-        for row in data:
-            nums = []
-            str_occ = 0
-            num = ''
-            row = row[0][slice_index+2:]
-            if row[0] == ' ':
-                row = row[1:]
-            for col in row:
-                try:
-                    int(col)
-                    num += col
-                    str_occ = 0
-                except:
-                    str_occ += 1
-                    if str_occ == 1:
-                        nums.append(int(num))
-                        num = ''
-            nums.append(int(num))
-            all_nums.append(nums)
-        return all_nums
+    def __post_init__(self):
+        self.part_one = 0
+        self.part_two = defaultdict(int)
+        self.calc_points()
 
-    def count_points(self) -> int:
-        data = self.clear_data()
-        count = 0
-        for nums in data:
-            eq_nums = len(nums) - len(set(nums))
-            if eq_nums < 2:
-                count += 2**eq_nums - 1
-            else:
-                count += 2**(eq_nums-1)
-        return count
+    def calc_points(self) -> tuple[int, int]:
+        data = self.data.to_numpy()
+        for i, line in enumerate(data):
+            self.part_two[i] += 1
+            win, our = line[0].split('|')
+            _, win_clear = win.split(':')
+            win_nums = [int(n) for n in win_clear.split()]
+            our_nums = [int(n) for n in our.split()]
+            val = len(set(win_nums) & set(our_nums))
+            if val > 0:
+                self.part_one += 2**(val-1)
+            for j in range(val):
+                self.part_two[i+1+j] += self.part_two[i]
+
+    def sol_one(self) -> int:
+        return self.part_one
+    
+    def sol_two(self) -> int:
+        self.part_two = sum(self.part_two.values())
+        return self.part_two
+
 
 if __name__ == '__main__':
-    os.chdir(os.path.dirname(os.path.abspath(__file__)))
     data = pd.read_csv('inputs/day4.csv', header=None)
-    scratchcards = Scratchcards(data)
-    ic(scratchcards.count_points())
+    # data = pd.read_csv('inputs/day4_test.csv', header=None)
+    scratchcards_one = ScratchcardsOne(data)
+    ic(scratchcards_one.sol_one())
+    ic(scratchcards_one.sol_two())
