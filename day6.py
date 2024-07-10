@@ -41,10 +41,27 @@ class WaitForIt:
     def prod(self, iterable: list[int]) -> int:
         return reduce(operator.mul, iterable, 1)
 
+    def connect_list(self, data: list[int]) -> int:
+        new_data = str(data[0])
+        for i in range(1, len(data)):
+            new_data += str(data[i])
+        return int(new_data)
+    
+    def ways_to_win_for_one(self, time: int, distance: int) -> int:
+        exact_acceleration = (time - sqrt((time**2 - 4*distance))) / 2
+        min_acceleration = int(exact_acceleration + 1)
+        return time - 2*min_acceleration + 1
+
     def part_one_sol(self) -> int:
         win_list = self.ways_to_win(self.time, self.distance)
         return self.prod(win_list)
-
+    
+    def part_two_sol(self) -> int:
+        time = self.connect_list(self.time)
+        distance = self.connect_list(self.distance)
+        wins = self.ways_to_win_for_one(time, distance)
+        return wins
+                
 
 if __name__ == '__main__':
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
