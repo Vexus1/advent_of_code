@@ -9,7 +9,7 @@ from icecream import ic
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 @dataclass
-class ScratchcardsOne:
+class Scratchcards:
     data: DataFrame
 
     def __post_init__(self):
@@ -42,6 +42,6 @@ class ScratchcardsOne:
 if __name__ == '__main__':
     data = pd.read_csv('inputs/day4.csv', header=None)
     # data = pd.read_csv('inputs/day4_test.csv', header=None)
-    scratchcards_one = ScratchcardsOne(data)
-    ic(scratchcards_one.sol_one())
-    ic(scratchcards_one.sol_two())
+    scratchcards = Scratchcards(data)
+    ic(scratchcards.sol_one())
+    ic(scratchcards.sol_two())
