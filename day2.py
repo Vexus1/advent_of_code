@@ -47,6 +47,22 @@ class CubeConundrum:
             result = self.win_or_lose(self.data_colors[i], self.data_numbers[i])
             games_results.append(result)
         return games_results
+    
+    def find_min_values(self, colors_list: list[list[str]],
+                        numbers_list: list[list[str]]) -> int:
+        min_red = 0
+        min_green = 0
+        min_blue = 0
+        for i, color in enumerate(colors_list):
+            for j in range(len(color)):
+                if color[j] == 'red':
+                    min_red = max(min_red, numbers_list[i][j])
+                elif color[j] == 'green':
+                    min_green = max(min_green, numbers_list[i][j])
+                elif color[j] == 'blue':
+                    min_blue = max(min_blue, numbers_list[i][j])
+        min_value = min_red * min_green * min_blue
+        return min_value
         
     def part_one_sol(self) -> int:
         games_results = self.games_score()
@@ -56,6 +72,12 @@ class CubeConundrum:
                 win_games += i+1
         return win_games
     
+    def part_two_sol(self) -> int:
+        min_value = 0
+        for i in range(len(self.data_colors)):
+            value = self.find_min_values(self.data_colors[i], self.data_numbers[i])
+            min_value += value
+        return min_value
                 
 if __name__ == '__main__':
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
@@ -65,3 +87,4 @@ if __name__ == '__main__':
         data = f.read()
     cube_conundrum = CubeConundrum(data.split('\n'))
     ic(cube_conundrum.part_one_sol())
+    ic(cube_conundrum.part_two_sol())
