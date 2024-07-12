@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 import os
+from math import lcm
 
 from icecream import ic
 
@@ -36,18 +37,28 @@ class HauntedWasteland:
             for path in self.navigation:
                 curr_position = self.choose_trace(path, curr_position)
                 count += 1
-                if curr_position == 'ZZZ':
+                if curr_position == 'ZZZ' or curr_position.endswith('Z'):
                     return count
+
+    def find_least_common_multiple(self) -> int:
+        count = 1
+        for start in list(self.node_map.keys()):
+            if start.endswith('A'):
+                count = lcm(count, self.calc_steps(start))
+        return count
 
     def part_one_sol(self) -> int:
         return self.calc_steps('AAA')
+    
+    def part_two_sol(self) -> int:
+        return self.find_least_common_multiple()
                 
 if __name__ == '__main__':
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
-    PATH = 'inputs/day8_test.csv'
+    # PATH = 'inputs/day8_test.csv'
     PATH = 'inputs/day8.csv'
     with open(PATH, 'r') as f:
         data = f.read()
     haunted_wasteland = HauntedWasteland(data.split('\n'))
     ic(haunted_wasteland.part_one_sol())
-    # ic(haunted_wasteland.part_two_sol())
+    ic(haunted_wasteland.part_two_sol())
