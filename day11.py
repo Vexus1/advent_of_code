@@ -70,6 +70,9 @@ class CosmicExpansion:
 
     def part_one_sol(self) -> int:
         return self.calc_shorthest_paths(n=2)
+
+    def part_two_sol(self) -> int:
+        return self.calc_shorthest_paths(n=1000000)
                 
 
 if __name__ == '__main__':
@@ -80,3 +83,4 @@ if __name__ == '__main__':
         data = f.read()
     cosmic_expansion = CosmicExpansion(data.split('\n'))
     ic(cosmic_expansion.part_one_sol())
+    ic(cosmic_expansion.part_two_sol())

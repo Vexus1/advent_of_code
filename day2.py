@@ -43,7 +43,7 @@ class CubeConundrum:
     
     def games_score(self) -> list[bool]:
         games_results = []
-        for i in range(len(self.data_colors)-1):
+        for i in range(len(self.data_colors)):
             result = self.win_or_lose(self.data_colors[i], self.data_numbers[i])
             games_results.append(result)
         return games_results
