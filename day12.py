@@ -8,6 +8,9 @@ from icecream import ic
 class HotSprings:
     data: list[str]
 
+    def __post_init__(self):
+        self.part_two_activate = False
+
     def nondet_finite_automata(self, condition:
                                          str, criteria: list[int]) -> int:
         automaton_states = '.'
@@ -47,13 +50,32 @@ class HotSprings:
     
     def sum_arrangements(self, data: list[str]) -> int:
         sum_arr = 0
-        for record in data:
-            condition, crit = record.split(' ')
-            crit = list(map(int, crit.split(',')))
-            sum_arr += self.nondet_finite_automata(condition, crit)
-        return sum_arr
+        if self.part_two_activate:
+            for record in data:
+                condition, criteria = record.split(' ')
+                criteria = list(map(int, criteria.split(',')))
+                condition, criteria = self.unfold_records(condition, criteria)
+                sum_arr += self.nondet_finite_automata(condition, criteria)
+            return sum_arr
+        else:   
+            for record in data:
+                condition, crit = record.split(' ')
+                crit = list(map(int, crit.split(',')))
+                sum_arr += self.nondet_finite_automata(condition, crit)
+            return sum_arr
+    
+    def unfold_records(self, condition: str, 
+                         criteria: list[int]) -> tuple[str, list[int]]:
+        condition = (condition + '?') * 5
+        condition = condition[:-1]
+        criteria *= 5
+        return condition, criteria
 
     def part_one_sol(self) -> int:
+        return self.sum_arrangements(self.data)
+
+    def part_two_sol(self) -> int:
+        self.part_two_activate = True
         return self.sum_arrangements(self.data)
         
 
@@ -65,3 +87,4 @@ if __name__ == '__main__':
         data = f.read()
     hot_springs = HotSprings(data.split('\n'))
     ic(hot_springs.part_one_sol())
+    ic(hot_springs.part_two_sol())
