@@ -9,6 +9,9 @@ class PointOfIncidence:
 
     def transpose(self, matrix: list[str]) -> list[str]:
         return list(map(''.join, zip(*matrix)))
+
+    def rotate(self, matrix: list[str]) -> list[str]:
+        return list(map(''.join, (zip(*matrix[::-1]))))
     
     def slide_rocks_north(self, data: list[str]) -> list[str]:
         data = self.transpose(data)
@@ -24,10 +27,37 @@ class PointOfIncidence:
             for char in line:
                 loan += i*(char=='O')
         return loan
+    
+    def spin_cycle(self, data: list[str]) -> list[str]:
+        for _ in range(4):
+            data = self.slide_rocks_north(data)
+            data = self.rotate(data)
+        return data
+    
+    def cycle_n_times(self, data: list[str], n: int) -> list[str]:
+        data = tuple(data)
+        seen = {data}
+        seen_list = [data]
+        grid_cycle = data
+        for i in range(n):
+            grid_cycle = tuple(self.spin_cycle(grid_cycle))
+            if grid_cycle in seen:
+                break
+            seen.add(grid_cycle)
+            seen_list.append(grid_cycle)
+        first_cycle_grid_index = seen_list.index(grid_cycle)
+        target = (n - first_cycle_grid_index) % (i + 1 - first_cycle_grid_index) \
+                  + first_cycle_grid_index
+        final_grid = seen_list[target]
+        return final_grid
 
     def part_one_sol(self) -> int:
         slide_rocks = self.slide_rocks_north(self.data)
         return self.calc_load(slide_rocks)
+    
+    def part_two_sol(self) -> int:
+        grid = self.cycle_n_times(self.data, n=10**9)        
+        return self.calc_load(grid)
 
 
 if __name__ == '__main__':
@@ -38,4 +68,4 @@ if __name__ == '__main__':
         data = f.read()
     point_of_incidence = PointOfIncidence(data.split('\n'))
     ic(point_of_incidence.part_one_sol())
-    
+    ic(point_of_incidence.part_two_sol())
