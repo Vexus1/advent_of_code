@@ -43,6 +43,15 @@ class TheFloorWillBeLava:
     def count_energized_titles(self, board: dict[complex, str]) -> int:
         return len(set(pos for pos, _ in board)) - 1
     
+    @property
+    def all_positions(self) -> list[list[complex]]:
+        positions = []
+        for dir in (1,1j,-1,-1j):
+            for pos in self.board:
+                if pos - dir not in self.board:
+                    positions.append([(pos - dir, dir)])
+        return positions
+    
     def find_highest_title(self, positions: list[list[complex]]) -> int:
         boards = map(self.energized_board, positions)
         return max(map(self.count_energized_titles, boards))
@@ -51,13 +60,18 @@ class TheFloorWillBeLava:
     def part_one_sol(self) -> int:
         energized_board = self.energized_board([(-1, 1)])
         return self.count_energized_titles(energized_board)
+    
+    @property
+    def part_two_sol(self) -> int:
+        return self.find_highest_title(self.all_positions)
 
 
 if __name__ == '__main__':
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
-    PATH = 'inputs/day16_test.txt'
+    # PATH = 'inputs/day16_test.txt'
     PATH = 'inputs/day16.txt'
     with open(PATH, 'r') as f:
         data = f.read()
     the_floor_will_be_lava = TheFloorWillBeLava(data.split('\n'))
     ic(the_floor_will_be_lava.part_one_sol)
+    ic(the_floor_will_be_lava.part_two_sol)
