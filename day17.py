@@ -42,6 +42,10 @@ class ClumsyCrucible:
     def part_one_sol(self) -> int:
         return self.minimal_heat([*self.board][0], [*self.board][-1], 1, 3)
     
+    @property
+    def part_two_sol(self) -> int:
+        return self.minimal_heat([*self.board][0], [*self.board][-1], 4, 10)
+    
 
 if __name__ == '__main__':
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
@@ -51,3 +55,4 @@ if __name__ == '__main__':
         data = f.read()
     clumsy_crucible = ClumsyCrucible(data.split('\n'))
     ic(clumsy_crucible.part_one_sol)
+    ic(clumsy_crucible.part_two_sol)
