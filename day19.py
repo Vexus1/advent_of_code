@@ -83,11 +83,64 @@ class Aplenty:
         for part in acc_parts:
             acc_sum += sum(n for n in list(part.values()))
         return acc_sum
+    
+    def find_range(self, cat, gt, val, ranges):
+        cat = 'xmas'.index(cat)
+        ranges2 = []
+        for rng in ranges:
+            rng = list(rng)
+            low, high = rng[cat]
+            if gt:
+                low = max(low, val + 1)
+            else:
+                high = min(high, val - 1)
+            if low > high:
+                continue
+            rng[cat] = (low, high)
+            ranges2.append(tuple(rng))
+        return ranges2
+
+    def acceptance_ranges_outer(self, rule: str):
+        return self.acceptance_ranges_inner(self.new_workflow[rule].split(","))
+    
+    def acceptance_ranges_inner(self, rules: list[str]):
+        rule = rules[0]
+        if rule == 'R':
+            return []
+        elif rule == 'A':
+            return [((1, 4000), (1, 4000), (1, 4000), (1, 4000))]
+        elif ':' not in rule:
+            return self.acceptance_ranges_outer(rule)
+        cond = rule.split(':')[0]
+        cat = cond[0]
+        val = int(cond[2:])
+        if gt := '>' in cond:
+            val_inv = val + 1
+        else:
+            val_inv = val - 1
+        cond_is_true = self.find_range(cat, gt, val,
+                                          self.acceptance_ranges_inner([rule.split(":")[1]]))
+        cond_is_false = self.find_range(cat, not gt, val_inv,
+                                           self.acceptance_ranges_inner(rules[1:]))
+        return cond_is_true + cond_is_false
+    
+    def sum_ranges(self) -> int:
+        result = 0
+        for rng in self.acceptance_ranges_outer(self.start):
+            dt = 1
+            for low, high in rng:
+                dt *= high - low + 1
+            result += dt
+        return result
 
     @property
     def part_one_sol(self) -> int:
         return self.sum_accepterd_parts(self.accept_or_reject())
     
+    @property
+    def part_two_sol(self) -> int:
+        return self.sum_ranges()
+
 
 if __name__ == '__main__':
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
@@ -97,3 +150,4 @@ if __name__ == '__main__':
         data = f.read()
     aplenty = Aplenty(data)
     ic(aplenty.part_one_sol)
+    ic(aplenty.part_two_sol)
