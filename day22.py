@@ -10,6 +10,7 @@ class SandSlabs:
 
     def __post_init__(self):
         self.bricks = self.parse_data()
+        self.fallen = self.count_fallen()
 
     def parse_data(self) -> list[list[int]]:
         bricks = []
@@ -55,7 +56,11 @@ class SandSlabs:
 
     @property
     def part_one_sol(self) -> int:
-        return self.count_fallen().count(0)
+        return self.fallen.count(0)
+    
+    @property
+    def part_one_sol(self) -> int:
+        return sum(self.fallen)
     
 
 if __name__ == '__main__':
