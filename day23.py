@@ -15,6 +15,8 @@ class LongWalk:
         self.board = self.create_board()
         self.height = len(self._data) 
         self.width = len(self._data[0]) 
+        self.start_point = self.find_unique_point(0)
+        self.end_point = self.find_unique_point(len(self._data)-1)
 
     def create_board(self) -> dict[complex, str]:
         pos_map = dict()
@@ -39,19 +41,49 @@ class LongWalk:
                 if self.board[move] == 'v' and move.imag > pos.imag:
                     yield move
 
-    def DFS(self) -> int:
+    @property
+    def neighbours_without_slope(self) -> T:
+        neighbours = defaultdict(set)
+        for pos in self.board:
+            if self.board[pos] != '#':
+                for dir in (-1, 1, -1j, 1j):
+                    move = pos + dir
+                    if 0 < move.real < self.width and 0 < move.imag < self.height:
+                        if self.board[move] in '.>v':
+                            neighbours[pos].add((move, 1))
+                            neighbours[move].add((pos, 1))
+        return neighbours
+        
+    def remove_nodes(self, neighbours: T) -> T:
+        while True:
+            for node, edge in neighbours.items():
+                if len(edge) == 2:
+                    first, sec = edge
+                    neighbours[first[0]].remove((node, first[1]))
+                    neighbours[sec[0]].remove((node, sec[1]))
+                    new_node = (complex(sec[0].real, sec[0].imag),
+                                first[1] + sec[1])
+                    neighbours[first[0]].add(new_node)
+                    new_node = (complex(first[0].real, first[0].imag),
+                                first[1] + sec[1])
+                    neighbours[sec[0]].add(new_node)
+                    del neighbours[node]
+                    break
+            else:
+                break
+        return neighbours
+        
+    def DFS_one(self) -> int:
         '''Iterative version'''
-        start_point = self.find_unique_point(0)
-        end_point = self.find_unique_point(len(self._data)-1)
         longest_path = 0
         seen = set()
-        stack = [(start_point, 0)]
+        stack = [(self.start_point, 0)]
         while stack:
             pos, path_len = stack.pop()
             if path_len == -1:
                 seen.remove(pos)
                 continue
-            if pos == end_point:
+            if pos == self.end_point:
                 longest_path = max(longest_path, path_len)
                 continue
             if pos in seen:
@@ -62,13 +94,35 @@ class LongWalk:
                 stack.append((neighbour, path_len + 1))
         return longest_path
 
+    def DFS_two(self) -> int:
+        '''Iterative version'''
+        neighbours = self.remove_nodes(self.neighbours_without_slope)
+        longest_path = 0
+        seen = set()
+        stack = [(self.start_point, 0)]
+        while stack:
+            pos, path_len = stack.pop()
+            if path_len == -1:
+                seen.remove(pos)
+                continue
+            if pos == self.end_point:
+                longest_path = max(longest_path, path_len)
+                continue
+            if pos in seen:
+                continue
+            seen.add(pos)
+            stack.append((pos, -1))
+            for neighbour, _len in neighbours[pos]:
+                stack.append((neighbour, path_len + _len))
+        return longest_path
+
     @property
     def part_one_sol(self) -> int:
-        return self.DFS()
+        return self.DFS_one()
 
     @property
     def part_two_sol(self) -> int:
-        return self.DFS()
+        return self.DFS_two()
 
 
 if __name__ == '__main__':
