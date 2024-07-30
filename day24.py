@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 import os
 
+from sympy import Symbol, solve_poly_system
 from icecream import ic
 
 @dataclass
@@ -50,10 +51,38 @@ class NeverTellMeTheOdds:
             return False
         if least <= xpos <= most and least <= ypos <= most:
             return True
+    
+    def find_perfect_position(self) -> tuple[int, int, int]:
+        '''Can be done without sympy just by 
+           linear algebra for first 3 hailstones'''
+        pxS = Symbol('x')
+        pyS = Symbol('y')
+        pzS = Symbol('z')
+        vxS = Symbol('vx')
+        vyS = Symbol('vy')
+        vzS = Symbol('vz')
+        equations = []
+        times = []
+        for i, hailstone in enumerate(self.hailstones[:3]):
+            px, py, pz, vx, vy, vz = hailstone
+            t = Symbol('t'+str(i)) 
+            eqx = pxS + vxS*t - (px + vx*t)
+            eqy = pyS + vyS*t - (py + vy*t)
+            eqz = pzS + vzS*t - (pz + vz*t)
+            equations.append(eqx)
+            equations.append(eqy)
+            equations.append(eqz)
+            times.append(t)
+        position = solve_poly_system(equations, *([pxS, pyS, pzS, vxS, vyS, vzS]+times))
+        return position[0][0], position[0][1], position[0][2] 
 
     @property
     def part_one_sol(self) -> int:
         return self.count_intersections(200000000000000, 400000000000000)
+
+    @property
+    def part_two_sol(self) -> int:
+        return sum(self.find_perfect_position())
 
 
 if __name__ == '__main__':
@@ -64,3 +93,4 @@ if __name__ == '__main__':
         data = f.read()
     never_tell_me_the_odds = NeverTellMeTheOdds(data.split('\n'))
     ic(never_tell_me_the_odds.part_one_sol)
+    ic(never_tell_me_the_odds.part_two_sol)
