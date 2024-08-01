@@ -41,12 +41,13 @@ class CubeConundrum:
                     return False
         return True
     
-    def games_score(self) -> list[bool]:
-        games_results = []
+    def games_score(self) -> int:
+        win_games = 0
         for i in range(len(self.data_colors)):
             result = self.win_or_lose(self.data_colors[i], self.data_numbers[i])
-            games_results.append(result)
-        return games_results
+            if result is True:
+                win_games += i+1
+        return win_games
     
     def find_min_values(self, colors_list: list[list[str]],
                         numbers_list: list[list[str]]) -> int:
@@ -65,12 +66,7 @@ class CubeConundrum:
         return min_value
         
     def part_one_sol(self) -> int:
-        games_results = self.games_score()
-        win_games = 0
-        for i, result in enumerate(games_results):
-            if result is True:
-                win_games += i+1
-        return win_games
+        return self.games_score()
     
     def part_two_sol(self) -> int:
         min_value = 0
@@ -81,8 +77,8 @@ class CubeConundrum:
                 
 if __name__ == '__main__':
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
-    # PATH = 'inputs/day2_test.csv'
-    PATH = 'inputs/day2.csv'
+    # PATH = 'inputs/day2_test.txt'
+    PATH = 'inputs/day2.txt'
     with open(PATH, 'r') as f:
         data = f.read()
     cube_conundrum = CubeConundrum(data.split('\n'))
