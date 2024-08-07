@@ -10,7 +10,8 @@ class TuningTrouble:
 
     def find_marker_position(self, marker_len: int) -> int:
         potential_marker = deque(self._data[:marker_len-1])
-        for i, char in enumerate(self._data[marker_len-1:]):
+        sliced_data = self._data[marker_len-1:]
+        for i, char in enumerate(sliced_data):
             potential_marker.append(char)
             correct = set(potential_marker)
             if len(correct) == marker_len:
@@ -23,7 +24,7 @@ class TuningTrouble:
     
     @property
     def part_two_sol(self) -> int:
-        return
+        return self.find_marker_position(14)
     
 
 if __name__ == '__main__':
