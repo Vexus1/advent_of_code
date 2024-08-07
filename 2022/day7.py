@@ -5,7 +5,6 @@ from itertools import accumulate
 
 from icecream import ic
 
-# ls, dir, cd, ..
 @dataclass
 class NoSpaceLeftOnDevice:
     _data: list[str]
@@ -18,28 +17,35 @@ class NoSpaceLeftOnDevice:
             match line:
                 case '$', 'cd', '/':
                     entities = ['/']
-                case '$', 'ls':
-                    pass
-                case 'dir', _:
-                    pass
                 case '$', 'cd', '..':
                     entities.pop()
                 case '$', 'cd', x:
                     entities.append(x+'/')
+                case '$', 'ls':
+                    pass
+                case 'dir', _:
+                    pass
                 case size, _:
-                    size = int(size)
-                    # ic(entities)
-                    for p in accumulate(entities):
-                        directiories[p] += int(size)
+                    for dir in accumulate(entities):
+                        directiories[dir] += int(size)
         return directiories
     
     def total_size(self, directiories: defaultdict[str, int], max_size: int) -> int:
         total = 0
-        ic(directiories)
         for size in directiories.values():
             if size <= max_size:
                 total += size
         return total
+    
+    def min_directory_to_delete(self, directiories: defaultdict[str, int],
+                                min_space: int, max_space: int) -> int:
+        sizes = []
+        total_dirs_space = directiories['/']
+        space_goal = max_space - min_space
+        for size in directiories.values():
+            if size >= total_dirs_space - space_goal:
+                sizes.append(size)
+        return min(sizes)
 
     @property
     def part_one_sol(self) -> int:
@@ -48,13 +54,14 @@ class NoSpaceLeftOnDevice:
     
     @property
     def part_two_sol(self) -> int:
-        return 
+        directories = self.tree_traversal()
+        return self.min_directory_to_delete(directories, 30000000, 70000000) 
     
 
 if __name__ == '__main__':
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
     # PATH = 'inputs/day7_test.txt'
-    PATH = 'inputs/day7.txt'
+    PATH = 'inputs/day7.txt'  
     with open(PATH, 'r') as f:
         data = f.read()
     no_space_left_on_device = NoSpaceLeftOnDevice(data.split('\n'))
