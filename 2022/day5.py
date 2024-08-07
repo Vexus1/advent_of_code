@@ -14,8 +14,7 @@ class SupplyStacks:
 
     @property
     def divide_data(self) -> tuple[list[str], list[str]]:
-        empty_index = self._data.index('')
-        crates, procedures = self._data[:empty_index], self._data[empty_index+1:]
+        crates, procedures = [part.split("\n") for part in self._data]
         return crates, procedures
     
     def rotate(self, matrix: list[str]) -> Iterator[str]:
@@ -32,34 +31,37 @@ class SupplyStacks:
                 stacks_of_crates.append(new_stack)
         return stacks_of_crates
     
-    def parse_procedures(self, procedures: list[str]) -> list[list[int]]:
+    def parse_procedures(self, procedures: list[str]) -> list[tuple[int]]:
+        '''index: 0 -> count, 1 -> from, 2 -> to'''
         new_procedures = []
         for procedure in procedures:
             nums = re.findall(r'(\d+)', procedure)
-            nums = list(map(int, nums))
+            nums = tuple(map(int, nums))
             new_procedures.append(nums)
         return new_procedures
     
-    def find_message(self) -> str:
-        stacks_of_crates = self.parse_crates(self.crates)
-        procedures = self.parse_procedures(self.procedures)
-        for procedure in procedures:
-            for _ in range(procedure[0]):
-                crate = stacks_of_crates[procedure[1]-1].pop()
-                stacks_of_crates[procedure[2]-1].append(crate)
-        messege = ''
-        for stack in stacks_of_crates:
-            messege += stack[-1]
-        return messege
+    def find_message(self, stacks_of_crates: list[list[str]],
+                     procedures: tuple[list[int]], direction: int) -> str:
+        for count, fr, to in procedures:
+            new_stack = []
+            for _ in range(min(len(stacks_of_crates[fr-1]), count)):
+                new_stack.append(stacks_of_crates[fr-1].pop())
+            stacks_of_crates[to-1].extend(new_stack[::direction])  
+        message = ''.join([stack[-1] for stack in stacks_of_crates])
+        return message
 
     @property
-    def part_one_sol(self) -> int:
-        return self.find_message()
+    def part_one_sol(self) -> str:
+        stacks_of_crates = self.parse_crates(self.crates)
+        procedures = self.parse_procedures(self.procedures)
+        return self.find_message(stacks_of_crates, procedures, 1)
     
     @property
     def part_two_sol(self) -> int:
-        return 
-
+        stacks_of_crates = self.parse_crates(self.crates)
+        procedures = self.parse_procedures(self.procedures)
+        return self.find_message(stacks_of_crates, procedures, -1)
+    
 
 if __name__ == '__main__':
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
@@ -67,6 +69,6 @@ if __name__ == '__main__':
     PATH = 'inputs/day5.txt'
     with open(PATH, 'r') as f:
         data = f.read()
-    supply_stacks = SupplyStacks(data.split('\n'))
+    supply_stacks = SupplyStacks(data.split('\n\n'))
     ic(supply_stacks.part_one_sol)
     ic(supply_stacks.part_two_sol)
