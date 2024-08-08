@@ -9,6 +9,8 @@ class TreetopTreeHouse:
 
     def __post_init__(self):
         self.board = self.create_board()
+        self.max_height = len(self._data)-1
+        self.max_width = len(self._data[0])-1
 
     def create_board(self) -> dict[complex, int]:
         board = dict()
@@ -21,11 +23,10 @@ class TreetopTreeHouse:
     def is_tree_visible(self, position: complex) -> int:
         curr_tree = self.board[position]
         for dir in (1, 1j, -1, -1j):
-            max_height = len(self._data) - 1
-            max_width = len(self._data[0]) - 1
             position_dx = position
             trees = []
-            while 0 < position_dx.real < max_width and 0 < position_dx.imag < max_height:
+            while (0 < position_dx.real < self.max_width and
+                   0 < position_dx.imag < self.max_height):
                 position_dx += dir
                 trees.append(self.board[position_dx])
             if trees:
@@ -40,14 +41,36 @@ class TreetopTreeHouse:
         for position in self.board.keys():
             counter += self.is_tree_visible(position)
         return counter
+    
+    def calc_scenic_score(self, position: complex) -> int:
+        starting_height = self.board[position]
+        scenic_score = 1
+        for dir in (1, 1j, -1, -1j):
+            position_dx = position + dir
+            visible_trees = 0
+            while (0 <= position_dx.real <= self.max_width and
+                   0 <= position_dx.imag <= self.max_height):
+                height = self.board[position_dx]
+                visible_trees += 1
+                if height >= starting_height:
+                    break
+                position_dx += dir
+            scenic_score *= visible_trees
+        return scenic_score
 
+    def highest_scenic_score(self) -> int:
+        highest = float('-inf')
+        for position in self.board.keys():
+            highest = max(highest, self.calc_scenic_score(position))
+        return highest
+    
     @property
     def part_one_sol(self) -> int:
         return self.count_visible()
     
     @property
     def part_two_sol(self) -> int:
-        return
+        return self.highest_scenic_score()
     
 
 if __name__ == '__main__':
