@@ -29,15 +29,15 @@ class RopeBridge:
             dx += -1j
         return dx
 
-    def visited_positions(self) -> int:
-        seen = [set([0]), set([0])] 
-        rope = [0, 0]
+    def visited_positions(self, knots = int) -> int:
+        rope = [0] * knots
+        seen = [set([n]) for n in range(knots)]
         for line in self._data:
             travel_len = int(line[2:])
             for _ in range(travel_len):
                 dir = line[0]
                 rope[0] += self.directory_map[dir]
-                for i in range(1, 2):
+                for i in range(1, knots):
                     distance = rope[i-1] - rope[i]
                     if abs(distance) >= 2:
                         rope[i] += self.change_position(distance)
@@ -46,16 +46,16 @@ class RopeBridge:
 
     @property
     def part_one_sol(self) -> int:
-        return len(self.visited_positions()[1])
+        return len(self.visited_positions(2)[1])
     
     @property
     def part_two_sol(self) -> int:
-        return 
+        return len(self.visited_positions(10)[9])
     
 
 if __name__ == '__main__':
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
-    PATH = 'inputs/day9_test.txt'
+    # PATH = 'inputs/day9_test.txt'
     PATH = 'inputs/day9.txt'  
     with open(PATH, 'r') as f:
         data = f.read()
