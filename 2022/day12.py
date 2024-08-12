@@ -4,12 +4,13 @@ from heapq import heappop, heappush
 
 from icecream import ic
 
-
 @dataclass
 class HillClimbingAlgorithm:
     _data: list[str]
 
     def __post_init__(self):
+        self.start_pos = None
+        self.end_pos = None
         self.board = self.create_board()
 
     def get_weight(self, char: str) -> int:
@@ -20,24 +21,27 @@ class HillClimbingAlgorithm:
         for y, row in enumerate(self._data):
             for x, col in enumerate(row):
                 position = complex(x, y)
-                board[position] = self.get_weight(col)
+                if col == 'S':
+                    self.start_pos = position
+                    board[position] = 0
+                elif col == 'E':
+                    self.end_pos = position
+                    board[position] = -1
+                else:
+                    board[position] = self.get_weight(col)
         return board
     
-    def start_pos(self) -> complex:
-        start_index = list(self.board.values()).index(-13)
-        pos = list(self.board.keys())[start_index]
-        self.board[pos] = 0
-        return pos
+    @property
+    def multiple_start_positions(self) -> list[complex]:
+        board_val = list(self.board.values())
+        start_indexes = [i for i in range(len(board_val)) if board_val[i] == 1]
+        positions = list(self.board.keys())
+        start_positions = [positions[i] for i in start_indexes]
+        start_positions.append(self.start_pos)
+        return start_positions
 
-    def end_pos(self) -> complex:
-        end_index = list(self.board.values()).index(-27)
-        pos = list(self.board.keys())[end_index]
-        self.board[pos] = -1
-        return pos
-
-    def dijkstra(self, max_weight: int) -> int:
-        start = self.start_pos()
-        end = self.end_pos()
+    def dijkstra(self, max_weight: int, 
+                 start: complex | list[complex], end: complex) -> int:
         x = 0
         seen = set()
         moves = []
@@ -56,19 +60,28 @@ class HillClimbingAlgorithm:
                         continue
                     moves.append(move)
                     heappush(queue, (steps+1, x:=x+1, move, dir))
+        
+    def multiple_paths(self, start: complex | list[complex]) -> int:
+        steps_list = []
+        end_pos = self.end_pos
+        for start_pos in start:
+            steps = self.dijkstra(1, start_pos, end_pos)
+            if steps:
+                steps_list.append(steps)
+        return min(steps_list)
 
     @property
     def part_one_sol(self) -> int:
-        return self.dijkstra(1)
+        return self.dijkstra(1, self.start_pos, self.end_pos)
     
     @property
     def part_two_sol(self) -> int:
-        return
+        return self.multiple_paths(self.multiple_start_positions)
     
 
 if __name__ == '__main__':
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
-    # PATH = 'inputs/day12_test.txt'
+    # PATH = 'inputs/day12_test.txt' # answer for test in advent of code site is wrong!
     PATH = 'inputs/day12.txt'  
     with open(PATH, 'r') as f:
         data = f.read()
