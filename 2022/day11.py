@@ -51,16 +51,25 @@ class Monkey:
             return item, self.accepted
         else:
             return item, self.rejected
-
+        
+    def pass_to_another_modulo(self, item: int, modulo: int) -> tuple[int, int]:
+        self.update_inspected()
+        item = self.modify_item(item)
+        item %= modulo
+        if item % self.test == 0:
+            return item, self.accepted
+        else:
+            return item, self.rejected
+        
 
 @dataclass
 class MonkeyintheMiddle:
     _data: list[str]
 
     def __post_init__(self):
-        self.monkeys = self.create_monkeys()
+        self.monkeys = None
 
-    def mult(self, iterable: Iterable[int]) -> int:
+    def prod(self, iterable: Iterable[int]) -> int:
         return reduce(mul, iterable, 1)
 
     def create_monkeys(self) -> dict[int, Monkey]:
@@ -98,7 +107,24 @@ class MonkeyintheMiddle:
                     item, moneky_number = monkey.pass_to_another(item)
                     self.monkeys[moneky_number].add_item(item)
                     monkey.remove_item()
-        inspected_count = list(monkey.items_inspected for monkey in self.monkeys.values())
+        inspected_count = list(monkey.items_inspected 
+                               for monkey in self.monkeys.values())
+        return inspected_count
+    
+    def count_inspected_alter(self, rounds_number: int) -> list[int]:
+        monkeys = self.monkeys.values()
+        modulo = 1
+        for monkey in monkeys:
+            modulo *= monkey.test
+        for _ in range(rounds_number):
+            for monkey in monkeys:
+                while monkey.items:
+                    item = monkey.items[0]
+                    item, moneky_number = monkey.pass_to_another_modulo(item, modulo)
+                    self.monkeys[moneky_number].add_item(item)
+                    monkey.remove_item()
+        inspected_count = list(monkey.items_inspected 
+                               for monkey in self.monkeys.values())
         return inspected_count
     
     def monkey_buisness(self, inspected_count: list[int], n: int) -> int:
@@ -108,21 +134,24 @@ class MonkeyintheMiddle:
             result.append(best)
             best_index = inspected_count.index(best)
             inspected_count.pop(best_index)
-        return self.mult(result)
+        return self.prod(result)
 
     @property
     def part_one_sol(self) -> int:
+        self.monkeys = self.create_monkeys()
         inspected_count = self.count_inspected(20)
         return self.monkey_buisness(inspected_count, 2)
     
     @property
     def part_two_sol(self) -> int:
-        return
+        self.monkeys = self.create_monkeys()
+        inspected_count = self.count_inspected_alter(10000)
+        return self.monkey_buisness(inspected_count, 2)
     
 
 if __name__ == '__main__':
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
-    PATH = 'inputs/day11_test.txt'
+    # PATH = 'inputs/day11_test.txt'
     PATH = 'inputs/day11.txt'  
     with open(PATH, 'r') as f:
         data = f.read()
