@@ -1,24 +1,33 @@
 from dataclasses import dataclass
 import os
-from typing import NamedTuple
 import re
+from collections import deque
+from functools import reduce
+from operator import mul
+from typing import Iterable
 
 from icecream import ic
 
 @dataclass
 class Monkey:
     monkey_number: int
-    items: list[int]
+    items: deque[int]
     operation: tuple[str, str]
     test: int
     accepted: int
     rejected: int
 
     def __post_init__(self):
-        self.items_inspected = len(self.items)
+        self.items_inspected = 0
 
-    def update_items(self, item: int) -> None:
+    def update_inspected(self) -> None:
+        self.items_inspected += 1
+
+    def add_item(self, item: int) -> None:
         self.items.append(item)
+
+    def remove_item(self) -> None:
+        self.items.popleft()
 
     def modify_item(self, item: int) -> int:
         item = int(item)
@@ -28,22 +37,20 @@ class Monkey:
             else:
                 item += item
         elif self.operation[0] == '*':
-            ic(item)
             if self.operation[1].isdigit():
                 item *= int(self.operation[1]) 
             else:
                 item *= item
-                ic(item)
         return item
 
     def pass_to_another(self, item: int) -> tuple[int, int]:
+        self.update_inspected()
         item = self.modify_item(item)
-        # ic(item)
-        # ic(self.accepted, self.rejected)
+        item //= 3
         if item % self.test == 0:
-            return item // 3, self.accepted
+            return item, self.accepted
         else:
-            return item // 3, self.rejected
+            return item, self.rejected
 
 
 @dataclass
@@ -53,13 +60,16 @@ class MonkeyintheMiddle:
     def __post_init__(self):
         self.monkeys = self.create_monkeys()
 
+    def mult(self, iterable: Iterable[int]) -> int:
+        return reduce(mul, iterable, 1)
+
     def create_monkeys(self) -> dict[int, Monkey]:
         monkeys = []
         for line in self._data:
             if line.startswith('Monkey'):
                 monkey_number = int(re.search(r'(\d+)', line).group())
             elif line.startswith('  Starting'):
-                items = list(re.findall(r'(\d+)', line))
+                items = deque(re.findall(r'(\d+)', line))
             elif line.startswith('  Operation'):
                 _, operation = line.split('=') 
                 operation = re.search(r'([+*])\s*(\d+|\w+)', operation)
@@ -76,25 +86,34 @@ class MonkeyintheMiddle:
                 monkeys.append(Monkey(monkey_number, items,
                                       operation, test, accepted, rejected))
         monkeys.append(Monkey(monkey_number, items,
-                                    operation, test, accepted, rejected))
+                              operation, test, accepted, rejected))
         monkeys = {i: monkey for i, monkey in enumerate(monkeys)}
         return monkeys
     
     def count_inspected(self, rounds_number: int) -> list[int]:
         for _ in range(rounds_number):
             for monkey in self.monkeys.values():
-                for item in monkey.items:
-                    # ic(monkey)
+                while monkey.items:
+                    item = monkey.items[0]
                     item, moneky_number = monkey.pass_to_another(item)
-                    # ic(item, moneky_number)
-                    self.monkeys[moneky_number].update_items(item)
-        # ic([monkey.items for monkey in self.monkeys.values()])
-        inspected_items = list(monkey.items_inspected for monkey in self.monkeys.values())
-        return inspected_items
+                    self.monkeys[moneky_number].add_item(item)
+                    monkey.remove_item()
+        inspected_count = list(monkey.items_inspected for monkey in self.monkeys.values())
+        return inspected_count
+    
+    def monkey_buisness(self, inspected_count: list[int], n: int) -> int:
+        result = []
+        for _ in range(n):
+            best = max(inspected_count)
+            result.append(best)
+            best_index = inspected_count.index(best)
+            inspected_count.pop(best_index)
+        return self.mult(result)
 
     @property
     def part_one_sol(self) -> int:
-        return self.count_inspected(1)
+        inspected_count = self.count_inspected(20)
+        return self.monkey_buisness(inspected_count, 2)
     
     @property
     def part_two_sol(self) -> int:
@@ -104,7 +123,7 @@ class MonkeyintheMiddle:
 if __name__ == '__main__':
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
     PATH = 'inputs/day11_test.txt'
-    # PATH = 'inputs/day11.txt'  
+    PATH = 'inputs/day11.txt'  
     with open(PATH, 'r') as f:
         data = f.read()
     monkey_in_the_Middle = MonkeyintheMiddle(data.split('\n'))
