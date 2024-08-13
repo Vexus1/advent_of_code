@@ -42,19 +42,33 @@ class DistressSignal:
             if self.compare_packet(*pair) == 1:
                 counter += i
         return counter
-
+    
+    def find_divider_packets(self) -> int:
+        packet_two = 1      # indexing
+        packet_six = 2      # indexing + packet_two
+        for left, right in self.pairs:
+            if self.compare_packet(left, [[2]]) == 1:
+                packet_two += 1
+            if self.compare_packet(right, [[2]]) == 1:
+                packet_two += 1
+            if self.compare_packet(left, [[6]]) == 1:
+                packet_six += 1
+            if self.compare_packet(right, [[6]]) == 1:
+                packet_six += 1
+        return packet_two * packet_six
+    
     @property
     def part_one_sol(self) -> int:
         return self.count_right_ordered()
     
     @property
     def part_two_sol(self) -> int:
-        return
+        return self.find_divider_packets()
     
 
 if __name__ == '__main__':
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
-    PATH = 'inputs/day13_test.txt' 
+    # PATH = 'inputs/day13_test.txt' 
     PATH = 'inputs/day13.txt'  
     with open(PATH, 'r') as f:
         data = f.read()
