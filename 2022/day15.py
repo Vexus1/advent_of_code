@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 import os
 import re
-from collections import deque
+from itertools import pairwise
 
 from icecream import ic
 
@@ -38,14 +38,33 @@ class BeaconExclusionZone:
         beacons_on_row = len(set(pos.real for pos in self.beacons if pos.imag == row))
         left, right = zip(*ranges)
         return int(max(right) - min(left) - beacons_on_row)
-
+    
+    def find_distress_beacon(self, bound: int) -> int:
+        # y = ax + b
+        a_coeffs = list()
+        b_coeffs = list()
+        for pos, dist in zip(self.sensors, self.distance):
+            a_coeffs.append(pos.imag - pos.real + dist + 1)
+            a_coeffs.append(pos.imag - pos.real - dist - 1)
+            b_coeffs.append(pos.imag + pos.real + dist + 1)
+            b_coeffs.append(pos.imag + pos.real - dist - 1)
+        a_coeffs = {a for a in a_coeffs if a_coeffs.count(a) >= 2}
+        b_coeffs = {b for b in b_coeffs if b_coeffs.count(b) >= 2}
+        for a in a_coeffs:
+            for b in b_coeffs:
+                intersect = [(b - a) // 2, (a + b) // 2]
+                if 0 < intersect[0] < bound and 0 < intersect[1] < bound:
+                    if all(self.manhattan(*intersect, pos.real, pos.imag) > dist
+                           for pos, dist in zip(self.sensors, self.distance)):
+                        return int(bound * intersect[0] + intersect[1])
+        
     @property
     def part_one_sol(self) -> int:
         return self.count_locked_in_row(2_000_000)
     
     @property
     def part_two_sol(self) -> int:
-        return 
+        return self.find_distress_beacon(4_000_000)
     
 
 if __name__ == '__main__':
@@ -55,5 +74,5 @@ if __name__ == '__main__':
     with open(PATH, 'r') as f:
         data = f.read()
     beacon_exclusion_zone = BeaconExclusionZone(data.split('\n'))
-    print(beacon_exclusion_zone.part_one_sol)
+    ic(beacon_exclusion_zone.part_one_sol)
     ic(beacon_exclusion_zone.part_two_sol)
