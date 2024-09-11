@@ -5,23 +5,33 @@ from copy import deepcopy
 
 from icecream import ic
 
+DECRYPTION_KEY = 811589153
 
 @dataclass
 class GrovePositioningSystem:
     _data: list[str]
 
     def __post_init__(self):
-        self.numbers, self.sequence = self._parse_data()
+        self.part_one: bool = True
+        self.numbers: list[int]
+        self.sequence: list[tuple[int, int]]
+        self.mix: int
 
-    def _parse_data(self) -> tuple[list[int], list[tuple[int, int]]]:
-        numbers = [int(n) for n in self._data]
-        sequence = [n for n in enumerate(numbers)]
-        return numbers, sequence
+    def _parse_data(self) -> None:
+        if self.part_one:
+            self.numbers = [int(n) for n in self._data]
+            self.sequence = [n for n in enumerate(self.numbers)]
+            self.mix = 1
+        else:
+            self.numbers = [int(n) * DECRYPTION_KEY for n in self._data]
+            self.sequence = [n for n in enumerate(self.numbers)]
+            self.mix = 10
 
     def _move_numbers(self) -> None:
+        self._parse_data()
         cyc = cycle(deepcopy(self.sequence))
         cyc_len = len(self.sequence) - 1 
-        for _ in range(len(self.numbers)):
+        for _ in range(len(self.numbers) * self.mix):
             curr = next(cyc)
             old_index = self.sequence.index(curr)
             self.sequence.remove(curr)
@@ -42,7 +52,8 @@ class GrovePositioningSystem:
     
     @property
     def part_two_sol(self) -> int:
-        return
+        self.part_one = False
+        return self._grove_coordinates()
     
 
 if __name__ == '__main__':
