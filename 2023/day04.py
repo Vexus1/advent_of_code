@@ -2,26 +2,21 @@ from dataclasses import dataclass
 import os
 from collections import defaultdict
 
-import pandas as pd
-from pandas import DataFrame
-from icecream import ic
-
-os.chdir(os.path.dirname(os.path.abspath(__file__)))
+from icecream import ic  # type: ignore
 
 @dataclass
 class Scratchcards:
-    data: DataFrame
+    data: list[str]
 
     def __post_init__(self):
         self.part_one = 0
         self.part_two = defaultdict(int)
         self.calc_points()
 
-    def calc_points(self) -> tuple[int, int]:
-        data = self.data.to_numpy()
-        for i, line in enumerate(data):
+    def calc_points(self) -> None:
+        for i, line in enumerate(self.data):
             self.part_two[i] += 1
-            win, our = line[0].split('|')
+            win, our = line.split('|')
             _, win_clear = win.split(':')
             win_nums = [int(n) for n in win_clear.split()]
             our_nums = [int(n) for n in our.split()]
@@ -30,18 +25,24 @@ class Scratchcards:
                 self.part_one += 2**(val-1)
             for j in range(val):
                 self.part_two[i+1+j] += self.part_two[i]
+        return None
 
-    def sol_one(self) -> int:
+    @property
+    def part_one_sol(self) -> int:
         return self.part_one
     
-    def sol_two(self) -> int:
+    @property
+    def part_two_sol(self) -> int:
         self.part_two = sum(self.part_two.values())
         return self.part_two
 
 
 if __name__ == '__main__':
-    data = pd.read_csv('inputs/day4.csv', header=None)
-    # data = pd.read_csv('inputs/day4_test.csv', header=None)
-    scratchcards = Scratchcards(data)
-    ic(scratchcards.sol_one())
-    ic(scratchcards.sol_two())
+    os.chdir(os.path.dirname(os.path.abspath(__file__)))
+    # PATH = 'inputs/day4_test.txt'
+    PATH = 'inputs/day4.txt'
+    with open(PATH, 'r') as f:
+        data = f.read()
+    scratchcards = Scratchcards(data.split('\n'))
+    ic(scratchcards.part_one_sol)
+    ic(scratchcards.part_two_sol)
