@@ -5,12 +5,12 @@ from icecream import ic
 
 @dataclass
 class CalorieCounting:
-    _data: str
+    data: str
     
     def calc_elfs_calories(self) -> list[int]:
         calories = []
         elf_food = 0
-        for line in self._data:
+        for line in self.data:
             if line.isdigit():
                 elf_food += int(line)
             else:
@@ -39,8 +39,8 @@ class CalorieCounting:
 
 if __name__ == '__main__':
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
-    # PATH = 'inputs/day1_test.txt'
-    PATH = 'inputs/day1.txt'
+    # PATH = 'inputs/day01_test.txt'
+    PATH = 'inputs/day01.txt'
     with open(PATH, 'r') as f:
         data = f.read()
     calorie_counting = CalorieCounting(data.split('\n'))

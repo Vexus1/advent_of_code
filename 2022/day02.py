@@ -5,7 +5,7 @@ from icecream import ic
 
 @dataclass
 class RockPaperScissors:
-    _data: str
+    data: str
     
     def __post_init__(self):
         self.shape_map = self.create_shape_map()
@@ -55,7 +55,7 @@ class RockPaperScissors:
     def total_score(self) -> int:
         part_one_score = 0
         part_two_score = 0
-        for round in self._data:
+        for round in self.data:
             antagonist, protagonist = round.split(' ')
             part_two_score += self.alter_round_result(antagonist, protagonist)
             protagonist = self.shape_map[protagonist]
@@ -73,8 +73,8 @@ class RockPaperScissors:
 
 if __name__ == '__main__':
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
-    # PATH = 'inputs/day2_test.txt'
-    PATH = 'inputs/day2.txt'
+    # PATH = 'inputs/day02_test.txt'
+    PATH = 'inputs/day02.txt'
     with open(PATH, 'r') as f:
         data = f.read()
     rock_paper_rcissors = RockPaperScissors(data.split('\n'))
