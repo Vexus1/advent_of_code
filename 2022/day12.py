@@ -2,15 +2,15 @@ from dataclasses import dataclass
 import os
 from heapq import heappop, heappush
 
-from icecream import ic
+from icecream import ic  # type: ignore
 
 @dataclass
 class HillClimbingAlgorithm:
     _data: list[str]
 
     def __post_init__(self):
-        self.start_pos = None
-        self.end_pos = None
+        self.start_pos: complex
+        self.end_pos: complex
         self.board = self.create_board()
 
     def get_weight(self, char: str) -> int:
@@ -40,12 +40,15 @@ class HillClimbingAlgorithm:
         start_positions.append(self.start_pos)
         return start_positions
 
-    def dijkstra(self, max_weight: int, 
-                 start: complex | list[complex], end: complex) -> int:
+    def dijkstra(self, max_weight: int, start: complex | list[complex], end: complex) -> int | None:
         x = 0
         seen = set()
         moves = []
-        queue = [(0, 0, start, 1)]
+        queue: list[tuple[int, int, complex, complex]]
+        if isinstance(start, list):
+            queue = [(0, 0, s, 1) for s in start]
+        else:
+            queue = [(0, 0, start, 1)]
         while queue:
             steps, _, position, direction = heappop(queue)
             if position == end:
@@ -60,19 +63,23 @@ class HillClimbingAlgorithm:
                         continue
                     moves.append(move)
                     heappush(queue, (steps+1, x:=x+1, move, dir))
-        
-    def multiple_paths(self, start: complex | list[complex]) -> int:
+        return None
+            
+    def multiple_paths(self, start: list[complex]) -> int:
         steps_list = []
         end_pos = self.end_pos
         for start_pos in start:
             steps = self.dijkstra(1, start_pos, end_pos)
-            if steps:
+            if steps is not None:
                 steps_list.append(steps)
-        return min(steps_list)
+        if steps_list:
+            return min(steps_list)
+        else:
+            return -1
 
     @property
     def part_one_sol(self) -> int:
-        return self.dijkstra(1, self.start_pos, self.end_pos)
+        return self.dijkstra(1, self.start_pos, self.end_pos) or -1
     
     @property
     def part_two_sol(self) -> int:
@@ -81,7 +88,6 @@ class HillClimbingAlgorithm:
 
 if __name__ == '__main__':
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
-    # PATH = 'inputs/day12_test.txt' # answer for test in advent of code site is wrong!
     PATH = 'inputs/day12.txt'  
     with open(PATH, 'r') as f:
         data = f.read()

@@ -1,11 +1,11 @@
 from dataclasses import dataclass
 import os
 
-from icecream import ic
+from icecream import ic  # type: ignore
 
 @dataclass
 class CalorieCounting:
-    data: str
+    data: list[str]
     
     def calc_elfs_calories(self) -> list[int]:
         calories = []

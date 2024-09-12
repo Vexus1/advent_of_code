@@ -1,11 +1,12 @@
 from dataclasses import dataclass
 import os
+from typing import Any
 
-from icecream import ic
+from icecream import ic  # type: ignore
 
 @dataclass
 class RockPaperScissors:
-    data: str
+    data: list[str]
     
     def __post_init__(self):
         self.shape_map = self.create_shape_map()
@@ -13,7 +14,7 @@ class RockPaperScissors:
         self.lose_config = [('A', 'C'), ('B', 'A'), ('C', 'B')]
         self.part_one, self.part_two = self.total_score()
 
-    def create_shape_map(self) -> dict[str, int]:
+    def create_shape_map(self) -> dict[str, Any]:
         '''A -> rock, B -> paper, C -> scissors'''
         shape = {'A': 1, 'B': 2, 'C': 3,
                  'X': 'A', 'Y': 'B', 'Z': 'C'}
@@ -52,7 +53,7 @@ class RockPaperScissors:
                     round_poinst = 6
         return round_poinst + shape_points
     
-    def total_score(self) -> int:
+    def total_score(self) -> tuple[int, int]:
         part_one_score = 0
         part_two_score = 0
         for round in self.data:
