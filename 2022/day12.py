@@ -6,7 +6,7 @@ from icecream import ic  # type: ignore
 
 @dataclass
 class HillClimbingAlgorithm:
-    _data: list[str]
+    data: list[str]
 
     def __post_init__(self):
         self.start_pos: complex
@@ -18,7 +18,7 @@ class HillClimbingAlgorithm:
 
     def create_board(self) -> dict[complex, int]:
         board = dict()
-        for y, row in enumerate(self._data):
+        for y, row in enumerate(self.data):
             for x, col in enumerate(row):
                 position = complex(x, y)
                 if col == 'S':
