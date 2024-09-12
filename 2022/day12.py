@@ -88,6 +88,7 @@ class HillClimbingAlgorithm:
 
 if __name__ == '__main__':
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
+    # PATH = 'inputs/day12_test.txt'
     PATH = 'inputs/day12.txt'  
     with open(PATH, 'r') as f:
         data = f.read()

@@ -6,11 +6,11 @@ from operator import mul
 import re
 from collections import deque
 
-from icecream import ic
+from icecream import ic  # type: ignore
 
 @dataclass
 class ProboscideaVolcanium:
-    _data: list[str]
+    data: list[str]
 
     def __post_init__(self):
         pass
@@ -22,7 +22,7 @@ class ProboscideaVolcanium:
         nodes = set()
         rates = []
         dests = []
-        for line in self._data:
+        for line in self.data:
             values = re.findall(r'Valve (\w+) .*=(\d*); .* valves? (.*)', line)
             node, rate, dest = values[0]
             dest = dest.split(',')
@@ -31,21 +31,21 @@ class ProboscideaVolcanium:
             dests.append(dest)
         return nodes, rates, dests
     
-    def BFS():
+    def BFS(self):
         pass
     
-    def _presure_release(self, node: str, rate: int, dests: str) -> int:
+    def _presure_release(self, node: str, rate: int, dests: str):
         ic(self._parse_data())
 
-    def _most_pressure_release(self, minutes: int) -> int:
+    def _most_pressure_release(self, minutes: int):
         pass
 
     @property
-    def part_one_sol(self) -> int:
-        return self._most_pressure_release(30)
+    def part_one_sol(self):
+        return 
     
     @property
-    def part_two_sol(self) -> int:
+    def part_two_sol(self):
         return
     
 

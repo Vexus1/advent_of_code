@@ -1,20 +1,20 @@
 from dataclasses import dataclass
 import os
 
-from icecream import ic
+from icecream import ic  # type: ignore
 
 @dataclass
 class TreetopTreeHouse:
-    _data: list[str]
+    data: list[str]
 
     def __post_init__(self):
         self.board = self.create_board()
-        self.max_height = len(self._data)-1
-        self.max_width = len(self._data[0])-1
+        self.max_height = len(self.data)-1
+        self.max_width = len(self.data[0])-1
 
     def create_board(self) -> dict[complex, int]:
         board = dict()
-        for y, row in enumerate(self._data):
+        for y, row in enumerate(self.data):
             for x, col in enumerate(row):
                 position = complex(x, y)
                 board[position] = int(col)
@@ -59,7 +59,7 @@ class TreetopTreeHouse:
         return scenic_score
 
     def highest_scenic_score(self) -> int:
-        highest = float('-inf')
+        highest = -1
         for position in self.board.keys():
             highest = max(highest, self.calc_scenic_score(position))
         return highest
@@ -75,8 +75,8 @@ class TreetopTreeHouse:
 
 if __name__ == '__main__':
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
-    # PATH = 'inputs/day8_test.txt'
-    PATH = 'inputs/day8.txt'  
+    # PATH = 'inputs/day08_test.txt'
+    PATH = 'inputs/day08.txt'  
     with open(PATH, 'r') as f:
         data = f.read()
     treetop_tree_house = TreetopTreeHouse(data.split('\n'))

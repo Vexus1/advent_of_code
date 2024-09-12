@@ -6,13 +6,13 @@ from functools import reduce
 from operator import mul
 from typing import Iterable
 
-from icecream import ic
+from icecream import ic  # type: ignore
 
 @dataclass
 class Monkey:
     monkey_number: int
     items: deque[int]
-    operation: tuple[str, str]
+    operation_tuple: tuple[str, str]
     test: int
     accepted: int
     rejected: int
@@ -31,14 +31,14 @@ class Monkey:
 
     def modify_item(self, item: int) -> int:
         item = int(item)
-        if self.operation[0] == '+':
-            if self.operation[1].isdigit():
-                item += int(self.operation[1]) 
+        if self.operation_tuple[0] == '+':
+            if self.operation_tuple[1].isdigit():
+                item += int(self.operation_tuple[1]) 
             else:
                 item += item
-        elif self.operation[0] == '*':
-            if self.operation[1].isdigit():
-                item *= int(self.operation[1]) 
+        elif self.operation_tuple[0] == '*':
+            if self.operation_tuple[1].isdigit():
+                item *= int(self.operation_tuple[1]) 
             else:
                 item *= item
         return item
@@ -64,40 +64,49 @@ class Monkey:
 
 @dataclass
 class MonkeyintheMiddle:
-    _data: list[str]
+    data: list[str]
 
     def __post_init__(self):
-        self.monkeys = None
+        self.monkeys: dict[int, Monkey]
 
     def prod(self, iterable: Iterable[int]) -> int:
         return reduce(mul, iterable, 1)
 
     def create_monkeys(self) -> dict[int, Monkey]:
-        monkeys = []
-        for line in self._data:
+        monkeys: list[Monkey] = []
+        for line in self.data:
             if line.startswith('Monkey'):
-                monkey_number = int(re.search(r'(\d+)', line).group())
+                match = re.search(r'(\d+)', line)
+                assert match is not None, "Monkey number pattern not found"
+                monkey_number = int(match.group())
             elif line.startswith('  Starting'):
                 items = deque(re.findall(r'(\d+)', line))
             elif line.startswith('  Operation'):
-                _, operation = line.split('=') 
-                operation = re.search(r'([+*])\s*(\d+|\w+)', operation)
-                operator = operation.group(1)
-                element = operation.group(2)
-                operation = (operator, element)
+                operation = line.split('=')[1].strip()  
+                match = re.search(r'([+*])\s*(\d+|\w+)', operation)
+                assert match is not None, "Operation pattern not found"
+                operator = match.group(1)
+                element = match.group(2)
+                operation_tuple = (operator, element) 
             elif line.startswith('  Test'):
-                test = int(re.search(r'(\d+)', line).group())
+                match = re.search(r'(\d+)', line)
+                assert match is not None, "Test pattern not found"
+                test = int(match.group())
             elif line.startswith('    If true'):
-                accepted = int(re.search(r'(\d+)', line).group())
+                match = re.search(r'(\d+)', line)
+                assert match is not None, "Accepted pattern not found"
+                accepted = int(match.group())
             elif line.startswith('    If false'):
-                rejected = int(re.search(r'(\d+)', line).group())
+                match = re.search(r'(\d+)', line)
+                assert match is not None, "Rejected pattern not found"
+                rejected = int(match.group())
             if line == '':
                 monkeys.append(Monkey(monkey_number, items,
-                                      operation, test, accepted, rejected))
+                                      operation_tuple, test, accepted, rejected))
         monkeys.append(Monkey(monkey_number, items,
-                              operation, test, accepted, rejected))
-        monkeys = {i: monkey for i, monkey in enumerate(monkeys)}
-        return monkeys
+                              operation_tuple, test, accepted, rejected))
+        monkeys_dict = {i: monkey for i, monkey in enumerate(monkeys)}
+        return monkeys_dict
     
     def count_inspected(self, rounds_number: int) -> list[int]:
         for _ in range(rounds_number):

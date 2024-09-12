@@ -3,16 +3,16 @@ import os
 from collections import defaultdict
 from itertools import accumulate
 
-from icecream import ic
+from icecream import ic  # type: ignore
 
 @dataclass
 class NoSpaceLeftOnDevice:
-    _data: list[str]
+    data: list[str]
 
     def tree_traversal(self):
         '''entities -> directory path'''
         directiories = defaultdict(int)
-        for line in self._data:
+        for line in self.data:
             line = line.split()
             match line:
                 case '$', 'cd', '/':
@@ -60,8 +60,8 @@ class NoSpaceLeftOnDevice:
 
 if __name__ == '__main__':
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
-    # PATH = 'inputs/day7_test.txt'
-    PATH = 'inputs/day7.txt'  
+    # PATH = 'inputs/day07_test.txt'
+    PATH = 'inputs/day07.txt'  
     with open(PATH, 'r') as f:
         data = f.read()
     no_space_left_on_device = NoSpaceLeftOnDevice(data.split('\n'))

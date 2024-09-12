@@ -3,18 +3,17 @@ import os
 import re
 from typing import Iterator
 
-from icecream import ic
+from icecream import ic # type: ignore
 
 @dataclass
 class SupplyStacks:
-    _data: str
+    data: list[str]
 
     def __post_init__(self):
-        self.crates, self.procedures = self.divide_data
+        self.crates, self.procedures = self.divide_data()
 
-    @property
     def divide_data(self) -> tuple[list[str], list[str]]:
-        crates, procedures = [part.split("\n") for part in self._data]
+        crates, procedures = [part.split("\n") for part in self.data]
         return crates, procedures
     
     def rotate(self, matrix: list[str]) -> Iterator[str]:
@@ -31,17 +30,18 @@ class SupplyStacks:
                 stacks_of_crates.append(new_stack)
         return stacks_of_crates
     
-    def parse_procedures(self, procedures: list[str]) -> list[tuple[int]]:
+    def parse_procedures(self, procedures: list[str]) -> list[tuple[int, int, int]]:
         '''index: 0 -> count, 1 -> from, 2 -> to'''
         new_procedures = []
         for procedure in procedures:
-            nums = re.findall(r'(\d+)', procedure)
-            nums = tuple(map(int, nums))
+            nums = tuple(map(int, re.findall(r'(\d+)', procedure)))
             new_procedures.append(nums)
-        return new_procedures
+        return new_procedures  # type: ignore
     
-    def find_message(self, stacks_of_crates: list[list[str]],
-                     procedures: tuple[list[int]], direction: int) -> str:
+    def find_message(self, 
+                     stacks_of_crates: list[list[str]],
+                     procedures: list[tuple[int, int, int]],
+                     direction: int) -> str:
         for count, fr, to in procedures:
             new_stack = []
             for _ in range(min(len(stacks_of_crates[fr-1]), count)):
@@ -57,7 +57,7 @@ class SupplyStacks:
         return self.find_message(stacks_of_crates, procedures, 1)
     
     @property
-    def part_two_sol(self) -> int:
+    def part_two_sol(self) -> str:
         stacks_of_crates = self.parse_crates(self.crates)
         procedures = self.parse_procedures(self.procedures)
         return self.find_message(stacks_of_crates, procedures, -1)
@@ -65,8 +65,8 @@ class SupplyStacks:
 
 if __name__ == '__main__':
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
-    PATH = 'inputs/day5_test.txt'
-    PATH = 'inputs/day5.txt'
+    # PATH = 'inputs/day05_test.txt'
+    PATH = 'inputs/day05.txt'
     with open(PATH, 'r') as f:
         data = f.read()
     supply_stacks = SupplyStacks(data.split('\n\n'))

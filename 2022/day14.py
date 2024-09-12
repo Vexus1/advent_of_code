@@ -1,11 +1,11 @@
 from dataclasses import dataclass
 import os
 
-from icecream import ic
+from icecream import ic  # type: ignore
 
 @dataclass
 class RegolithReservoir:
-    _data: list[str]
+    data: list[str]
 
     def __post_init__(self):
         self.sand_start_pos = complex(500, 0)
@@ -13,7 +13,7 @@ class RegolithReservoir:
     def localize_rocks_and_void(self) -> tuple[set[complex], int]:
         rocks = set()
         void = 0
-        for line in self._data:
+        for line in self.data:
             points = [tuple(map(int, point.split(","))) 
                       for point in line.split(" -> ")]
             for (x1, y1), (x2, y2) in zip(points, points[1:]):
@@ -85,5 +85,5 @@ if __name__ == '__main__':
     with open(PATH, 'r') as f:
         data = f.read()
     regolith_reservoir = RegolithReservoir(data.split('\n'))
-    print(regolith_reservoir.part_one_sol)
+    ic(regolith_reservoir.part_one_sol)
     ic(regolith_reservoir.part_two_sol)

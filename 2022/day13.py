@@ -1,20 +1,20 @@
 from dataclasses import dataclass
 import os
 
-from icecream import ic
+from icecream import ic  #type: ignore
 
 @dataclass
 class DistressSignal:
-    _data: list[str]
+    data: list[str]
 
     def __post_init__(self):
         self.pairs = self.parse()
 
     def parse(self) -> list[list[list | int]]:
-        pairs = [[*map(eval, line.split())] for line in self._data]
+        pairs = [[*map(eval, line.split())] for line in self.data]
         return pairs
 
-    def compare_packet(self, left: list[list | int], right: list[list | int]) -> int:
+    def compare_packet(self, left: list | int, right: list | int) -> int:
         match left, right:
             case int(), int():
                 return self.compare_values(left, right)
@@ -27,6 +27,7 @@ class DistressSignal:
                     if result != 0:
                         return result
                 return self.compare_packet(len(left), len(right))
+        return -1
 
     def compare_values(self, left: int, right: int) -> int:
         if left < right:

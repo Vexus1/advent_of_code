@@ -1,11 +1,11 @@
 from dataclasses import dataclass
 import os
 
-from icecream import ic
+from icecream import ic  # type: ignore
 
 @dataclass
 class CathodeRayTube:
-    _data: list[str]
+    data: list[str]
 
     def __post_init__(self):
         self.signal_strenght = []
@@ -19,10 +19,10 @@ class CathodeRayTube:
     def execute_program(self) -> None:
         X = 1
         cycle = 0
-        for line in self._data:
-            line = line.split()
-            match line:
-                case 'addx', n:
+        for line in self.data:
+            tokens = line.split()
+            match tokens:
+                case ['addx', n]:
                     cycle += 1
                     self.update_singal_strenght(cycle, X)
                     cycle += 1
@@ -46,10 +46,10 @@ class CathodeRayTube:
         X = 1
         min_pos = 0
         max_pos = 3
-        for line in self._data:
-            line = line.split()
-            match line:
-                case 'addx', n:
+        for line in self.data:
+            tokens = line.split()
+            match tokens:
+                case ['addx', n]:
                     self.cycle += 1
                     self.update_row(min_pos, max_pos)
                     self.cycle += 1

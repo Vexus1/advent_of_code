@@ -1,11 +1,11 @@
 from dataclasses import dataclass
 import os
 
-from icecream import ic
+from icecream import ic  # type: ignore
 
 @dataclass
 class RopeBridge:
-    _data: list[str]
+    data: list[str]
 
     def __post_init__(self):
         self.directory_map = self.create_directory_map()
@@ -29,10 +29,10 @@ class RopeBridge:
             dx += -1j
         return dx
 
-    def visited_positions(self, knots = int) -> int:
-        rope = [0] * knots
-        seen = [set([n]) for n in range(knots)]
-        for line in self._data:
+    def visited_positions(self, knots: int) -> list[set[complex]]:
+        rope = [0 + 0j] * knots
+        seen = [set([0 + 0j]) for _ in range(knots)]
+        for line in self.data:
             travel_len = int(line[2:])
             for _ in range(travel_len):
                 dir = line[0]
@@ -55,8 +55,8 @@ class RopeBridge:
 
 if __name__ == '__main__':
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
-    # PATH = 'inputs/day9_test.txt'
-    PATH = 'inputs/day9.txt'  
+    # PATH = 'inputs/day09_test.txt'
+    PATH = 'inputs/day09.txt'  
     with open(PATH, 'r') as f:
         data = f.read()
     rope_bridge = RopeBridge(data.split('\n'))

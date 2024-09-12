@@ -3,13 +3,13 @@ import os
 from itertools import cycle
 from copy import deepcopy
 
-from icecream import ic
+from icecream import ic  # type: ignore
 
 DECRYPTION_KEY = 811589153
 
 @dataclass
 class GrovePositioningSystem:
-    _data: list[str]
+    data: list[str]
 
     def __post_init__(self):
         self.part_one: bool = True
@@ -17,18 +17,18 @@ class GrovePositioningSystem:
         self.sequence: list[tuple[int, int]]
         self.mix: int
 
-    def _parse_data(self) -> None:
+    def parse_data(self) -> None:
         if self.part_one:
-            self.numbers = [int(n) for n in self._data]
+            self.numbers = [int(n) for n in self.data]
             self.sequence = [n for n in enumerate(self.numbers)]
             self.mix = 1
         else:
-            self.numbers = [int(n) * DECRYPTION_KEY for n in self._data]
+            self.numbers = [int(n) * DECRYPTION_KEY for n in self.data]
             self.sequence = [n for n in enumerate(self.numbers)]
             self.mix = 10
 
-    def _move_numbers(self) -> None:
-        self._parse_data()
+    def move_numbers(self) -> None:
+        self.parse_data()
         cyc = cycle(deepcopy(self.sequence))
         cyc_len = len(self.sequence) - 1 
         for _ in range(len(self.numbers) * self.mix):
@@ -38,8 +38,8 @@ class GrovePositioningSystem:
             new_index = (old_index + curr[1] + cyc_len) % cyc_len
             self.sequence.insert(new_index, curr)
     
-    def _grove_coordinates(self) -> int:
-        self._move_numbers()
+    def grove_coordinates(self) -> int:
+        self.move_numbers()
         zero_tuple_index = self.sequence.index((self.numbers.index(0), 0))
         sol = 0
         for i in [1000, 2000, 3000]:
@@ -48,17 +48,17 @@ class GrovePositioningSystem:
 
     @property
     def part_one_sol(self) -> int:
-        return self._grove_coordinates()
+        return self.grove_coordinates()
     
     @property
     def part_two_sol(self) -> int:
         self.part_one = False
-        return self._grove_coordinates()
+        return self.grove_coordinates()
     
 
 if __name__ == '__main__':
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
-    PATH = 'inputs/day20_test.txt' 
+    # PATH = 'inputs/day20_test.txt' 
     PATH = 'inputs/day20.txt'  
     with open(PATH, 'r') as f:
         data = f.read()
