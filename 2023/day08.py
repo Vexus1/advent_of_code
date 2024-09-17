@@ -2,7 +2,7 @@ from dataclasses import dataclass
 import os
 from math import lcm
 
-from icecream import ic
+from icecream import ic  # type: ignore
 
 @dataclass
 class HauntedWasteland:
@@ -55,8 +55,8 @@ class HauntedWasteland:
                 
 if __name__ == '__main__':
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
-    # PATH = 'inputs/day8_test.csv'
-    PATH = 'inputs/day8.csv'
+    # PATH = 'inputs/day08_test.txt'
+    PATH = 'inputs/day08.txt'
     with open(PATH, 'r') as f:
         data = f.read()
     haunted_wasteland = HauntedWasteland(data.split('\n'))

@@ -2,7 +2,7 @@ from dataclasses import dataclass
 import os
 
 from numpy import transpose
-from icecream import ic
+from icecream import ic  # type: ignore
 
 GALAXY = '#'
 VOID = '.'
@@ -18,7 +18,7 @@ class CosmicExpansion:
     def modify_data(self) -> list[list[str]]:
         return [list(row) for row in self.data]
     
-    def find_galaxy(self) -> list[tuple[int]]:
+    def find_galaxy(self) -> list[tuple[int, int]]:
         galaxy_cord = []
         for i, row in enumerate(self.data):
             for j, col in enumerate(row):
@@ -26,7 +26,7 @@ class CosmicExpansion:
                     galaxy_cord.append((i, j))
         return galaxy_cord
 
-    def find_void(self) -> tuple[list[int]]:
+    def find_void(self) -> tuple[list[int], list[int]]:
         row = [i for i, line in enumerate(self.data) if set(line) == set(VOID)]
         col = [i for i, line in enumerate(transpose(self.data)) if set(line) == set(VOID)]
         void = (row, col)
@@ -77,8 +77,8 @@ class CosmicExpansion:
 
 if __name__ == '__main__':
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
-    # PATH = 'inputs/day11_test.csv'
-    PATH = 'inputs/day11.csv'
+    # PATH = 'inputs/day11_test.txt'
+    PATH = 'inputs/day11.txt'
     with open(PATH, 'r') as f:
         data = f.read()
     cosmic_expansion = CosmicExpansion(data.split('\n'))

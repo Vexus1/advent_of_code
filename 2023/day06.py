@@ -5,11 +5,11 @@ import operator
 import re
 from math import sqrt
 
-from icecream import ic
+from icecream import ic  # type: ignore
 
 @dataclass
 class WaitForIt:
-    data: list[str]
+    data: str
     
     def __post_init__(self):
         self.time = self.race_data()[0]
@@ -65,8 +65,8 @@ class WaitForIt:
 
 if __name__ == '__main__':
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
-    # PATH = 'inputs/day6_test.csv'
-    PATH = 'inputs/day6.csv'
+    # PATH = 'inputs/day06_test.txt'
+    PATH = 'inputs/day06.txt'
     with open(PATH, 'r') as f:
         data = f.read()
     waitforit = WaitForIt(data)

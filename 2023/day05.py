@@ -71,8 +71,9 @@ class Fertilizer:
         return self.min_location(self.seeds)
 
     @property
-    def part_two_sol(self):
+    def part_two_sol(self) -> int:
         return self.lowest_location_number()
+
 
 if __name__ == '__main__':
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
