@@ -26,8 +26,7 @@ class GearRatios:
                     symbols[(x, y)] = char
         return symbols
     
-    def count_engine_parts(self) -> tuple[int, defaultdict[tuple[int, int],
-                                                           list[int]]]:
+    def count_engine_parts(self) -> tuple[int, defaultdict[tuple[int, int], list[int]]]:
         gears = defaultdict(list)
         engine_parts = 0
         symbols = self.localize_symbols()

@@ -2,19 +2,18 @@ from dataclasses import dataclass
 import os
 from heapq import heappush, heappop
 
-from icecream import ic
+from icecream import ic  # type: ignore
 
 @dataclass
 class ClumsyCrucible:
-    _data: list[str]
+    data: list[str]
 
     def __post_init__(self):
-        self.board = self.create_board
+        self.board = self.create_board()
 
-    @property
-    def create_board(self) -> dict[complex, str]:
+    def create_board(self) -> dict[complex, int]:
         board = {}
-        for y, row in enumerate(self._data):
+        for y, row in enumerate(self.data):
             for x, col in enumerate(row):
                 position = complex(x, y)
                 board[position] = int(col)
@@ -23,7 +22,7 @@ class ClumsyCrucible:
     def minimal_heat(self, start: complex, end: complex, min: int, max: int) -> int:
         x = 0
         seen = set()
-        queue = [(0, 0, start, 1)]
+        queue: list[tuple[int, int, complex, complex]] = [(0, 0, start, 1)]
         while queue:
             heat, _, position, direction = heappop(queue)
             if position == end:
@@ -37,6 +36,7 @@ class ClumsyCrucible:
                     if move in self.board:
                         h = sum(self.board[position + dir*j] for j in range(1, i+1))
                         heappush(queue, (heat+h, x:=x+1, move, dir))
+        return -1
     
     @property
     def part_one_sol(self) -> int:

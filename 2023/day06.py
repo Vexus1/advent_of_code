@@ -52,10 +52,12 @@ class WaitForIt:
         min_acceleration = int(exact_acceleration + 1)
         return time - 2*min_acceleration + 1
 
+    @property
     def part_one_sol(self) -> int:
         win_list = self.ways_to_win(self.time, self.distance)
         return self.prod(win_list)
     
+    @property
     def part_two_sol(self) -> int:
         time = self.connect_list(self.time)
         distance = self.connect_list(self.distance)
@@ -70,5 +72,5 @@ if __name__ == '__main__':
     with open(PATH, 'r') as f:
         data = f.read()
     waitforit = WaitForIt(data)
-    ic(waitforit.part_one_sol())
-    ic(waitforit.part_two_sol())
+    ic(waitforit.part_one_sol)
+    ic(waitforit.part_two_sol)

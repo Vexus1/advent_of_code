@@ -1,21 +1,21 @@
 from dataclasses import dataclass
 import os
 
-from icecream import ic
+from icecream import ic  # type: ignore
 
 @dataclass
 class PointOfIncidence:
     data: list[str]
 
     def __post_init__(self):
-        self.data = self.create_grids(self.data)
+        self.grid = self.create_grids()
 
     def transpose(self, matrix: list[str]) -> list[str]:
         return list(map(''.join, zip(*matrix)))
 
-    def create_grids(self, data: list[str]) -> list[list[str]]:
-        grids = [[]]
-        for string in data:
+    def create_grids(self) -> list[list[str]]:
+        grids: list[list[str]] = [[]]
+        for string in self.data:
             if string == '':
                 grids.append([])
                 continue
@@ -35,9 +35,9 @@ class PointOfIncidence:
                 return i
         return 0
     
-    def summarizing_notes(self, grids: list[list[str]], n: int) -> int:
+    def summarizing_notes(self, n: int) -> int:
         result = 0
-        for pattern in grids:
+        for pattern in self.grid:
             horizontal = self.find_reflection(pattern, n)
             vertical = self.find_reflection(self.transpose(pattern), n)
             if horizontal != 0:
@@ -46,11 +46,13 @@ class PointOfIncidence:
                 result += vertical
         return result
     
+    @property
     def part_one_sol(self) -> int:
-        return self.summarizing_notes(self.data, n=0)
+        return self.summarizing_notes(n=0)
 
+    @property
     def part_two_sol(self) -> int:
-        return self.summarizing_notes(self.data, n=1)
+        return self.summarizing_notes(n=1)
         
 
 if __name__ == '__main__':
@@ -60,5 +62,5 @@ if __name__ == '__main__':
     with open(PATH, 'r') as f:
         data = f.read()
     point_of_incidence = PointOfIncidence(data.split('\n'))
-    ic(point_of_incidence.part_one_sol())
-    ic(point_of_incidence.part_two_sol())
+    ic(point_of_incidence.part_one_sol)
+    ic(point_of_incidence.part_two_sol)

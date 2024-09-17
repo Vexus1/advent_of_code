@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 import os
 
-from numpy import transpose
 from icecream import ic  # type: ignore
 
 GALAXY = '#'
@@ -12,8 +11,11 @@ class CosmicExpansion:
     data: list[str]
 
     def __post_init__(self):
-        self.data = self.modify_data()
+        self.modified_data = self.modify_data()
         self.void = self.find_void()
+
+    def transpose(self, matrix: list[list[str]]) -> list[str]:
+        return list(map(''.join, zip(*matrix)))
 
     def modify_data(self) -> list[list[str]]:
         return [list(row) for row in self.data]
@@ -27,16 +29,18 @@ class CosmicExpansion:
         return galaxy_cord
 
     def find_void(self) -> tuple[list[int], list[int]]:
-        row = [i for i, line in enumerate(self.data) if set(line) == set(VOID)]
-        col = [i for i, line in enumerate(transpose(self.data)) if set(line) == set(VOID)]
+        row = [i for i, line in enumerate(self.modified_data)
+               if set(line) == set(VOID)]
+        col = [i for i, line in enumerate(self.transpose(self.modified_data))
+               if set(line) == set(VOID)]
         void = (row, col)
         return void
     
-    def manhattan(self, pair_one: tuple[int], pair_two: tuple[int]):
+    def manhattan(self, pair_one: tuple[int, int], pair_two: tuple[int, int]):
         return abs(pair_one[0] - pair_two[0]) + abs(pair_one[1] - pair_two[1])
     
     def expanse_dimension(self, n: int, pair_one:
-                           tuple[int], pair_two: tuple[int]) -> int:
+                           tuple[int, int], pair_two: tuple[int, int]) -> int:
         y_min = min(pair_one[0]+1, pair_two[0])
         y_max = max(pair_one[0]+1, pair_two[0])
         x_min = min(pair_one[1]+1, pair_two[1])
@@ -68,9 +72,11 @@ class CosmicExpansion:
                 path_len += manh_len + expa_len
         return path_len
 
+    @property
     def part_one_sol(self) -> int:
         return self.calc_shorthest_paths(n=2)
-
+    
+    @property
     def part_two_sol(self) -> int:
         return self.calc_shorthest_paths(n=1000000)
                 
@@ -82,5 +88,5 @@ if __name__ == '__main__':
     with open(PATH, 'r') as f:
         data = f.read()
     cosmic_expansion = CosmicExpansion(data.split('\n'))
-    ic(cosmic_expansion.part_one_sol())
-    ic(cosmic_expansion.part_two_sol())
+    ic(cosmic_expansion.part_one_sol)
+    ic(cosmic_expansion.part_two_sol)

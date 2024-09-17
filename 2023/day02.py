@@ -2,7 +2,7 @@ from dataclasses import dataclass
 import os
 import re
 
-from icecream import ic
+from icecream import ic  # type: ignore
 
 @dataclass
 class CubeConundrum:
@@ -12,16 +12,16 @@ class CubeConundrum:
         self.main_bag = {'red': 12, 'green': 13, 'blue': 14}
         self.data_colors, self.data_numbers = self.game_data_sets(self.data)
 
-    def game_data_sets(self, 
-                       data: str) -> tuple[list[list[str]], list[list[int]]]:
-        data_colors = []
-        data_numbers = []
+    def game_data_sets(self, data: list[str]) -> tuple[list[list[list[str]]],
+                                                       list[list[list[int]]]]:
+        data_colors: list[list[list[str]]] = []
+        data_numbers: list[list[list[int]]] = []
         data_slice_index = data[0].index(':')
         for game in data:
             game = game[data_slice_index+2:]
             subsets = game.split(';')
-            colors_list = []
-            numbers_list = []
+            colors_list: list[list[str]] = []
+            numbers_list: list[list[int]] = []
             for subset in subsets:
                 colors = re.findall(r'\b(red|green|blue)\b', subset)
                 numbers = re.findall(r'\d+', subset)
@@ -33,7 +33,7 @@ class CubeConundrum:
         return data_colors, data_numbers
     
     def win_or_lose(self, colors_list: list[list[str]],
-                    numbers_list: list[list[str]]) -> list[bool]:
+                    numbers_list: list[list[int]]) -> bool:
         for i in range(len(colors_list)):
             for j, color in enumerate(colors_list[i]):
                 main_bag_value = self.main_bag[color]
@@ -50,7 +50,7 @@ class CubeConundrum:
         return win_games
     
     def find_min_values(self, colors_list: list[list[str]],
-                        numbers_list: list[list[str]]) -> int:
+                        numbers_list: list[list[int]]) -> int:
         min_red = 0
         min_green = 0
         min_blue = 0
@@ -65,9 +65,11 @@ class CubeConundrum:
         min_value = min_red * min_green * min_blue
         return min_value
         
+    @property
     def part_one_sol(self) -> int:
         return self.games_score()
     
+    @property
     def part_two_sol(self) -> int:
         min_value = 0
         for i in range(len(self.data_colors)):
@@ -77,10 +79,10 @@ class CubeConundrum:
                 
 if __name__ == '__main__':
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
-    # PATH = 'inputs/day2_test.txt'
-    PATH = 'inputs/day2.txt'
+    # PATH = 'inputs/day02_test.txt'
+    PATH = 'inputs/day02.txt'
     with open(PATH, 'r') as f:
         data = f.read()
     cube_conundrum = CubeConundrum(data.split('\n'))
-    ic(cube_conundrum.part_one_sol())
-    ic(cube_conundrum.part_two_sol())
+    ic(cube_conundrum.part_one_sol)
+    ic(cube_conundrum.part_two_sol)

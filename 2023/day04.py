@@ -33,14 +33,13 @@ class Scratchcards:
     
     @property
     def part_two_sol(self) -> int:
-        self.part_two = sum(self.part_two.values())
-        return self.part_two
+        return sum(self.part_two.values())
 
 
 if __name__ == '__main__':
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
-    # PATH = 'inputs/day4_test.txt'
-    PATH = 'inputs/day4.txt'
+    # PATH = 'inputs/day04_test.txt'
+    PATH = 'inputs/day04.txt'
     with open(PATH, 'r') as f:
         data = f.read()
     scratchcards = Scratchcards(data.split('\n'))

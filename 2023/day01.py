@@ -1,11 +1,11 @@
 import os 
 from dataclasses import dataclass
 
-from icecream import ic
+from icecream import ic # type: ignore
 
 @dataclass
 class Trebuchet:
-    _data: str
+    data: list[str]
 
     def __post_init__(self):
         self.sol_one, self.sol_two = self.sum_calibration_values()
@@ -19,7 +19,7 @@ class Trebuchet:
     def sum_calibration_values(self) -> tuple[int, int]:
         calib_one = 0
         calib_two = 0
-        for line in self._data:
+        for line in self.data:
             num = []
             num_text = []
             for i, char in enumerate(line):
@@ -44,8 +44,8 @@ class Trebuchet:
 
 if __name__ == '__main__':
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
-    # PATH = 'inputs/day1_test.txt'
-    PATH = 'inputs/day1.txt'
+    # PATH = 'inputs/day01_test.txt'
+    PATH = 'inputs/day01.txt'
     with open(PATH, 'r') as f:
         data = f.read()
     trebuchet = Trebuchet(data.split('\n'))

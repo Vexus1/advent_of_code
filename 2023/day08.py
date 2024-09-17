@@ -47,9 +47,11 @@ class HauntedWasteland:
                 count = lcm(count, self.calc_steps(start))
         return count
 
+    @property
     def part_one_sol(self) -> int:
         return self.calc_steps('AAA')
     
+    @property
     def part_two_sol(self) -> int:
         return self.find_least_common_multiple()
                 
@@ -60,5 +62,5 @@ if __name__ == '__main__':
     with open(PATH, 'r') as f:
         data = f.read()
     haunted_wasteland = HauntedWasteland(data.split('\n'))
-    ic(haunted_wasteland.part_one_sol())
-    ic(haunted_wasteland.part_two_sol())
+    ic(haunted_wasteland.part_one_sol)
+    ic(haunted_wasteland.part_two_sol)

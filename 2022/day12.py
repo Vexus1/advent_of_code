@@ -31,7 +31,6 @@ class HillClimbingAlgorithm:
                     board[position] = self.get_weight(col)
         return board
     
-    @property
     def multiple_start_positions(self) -> list[complex]:
         board_val = list(self.board.values())
         start_indexes = [i for i in range(len(board_val)) if board_val[i] == 1]
@@ -83,7 +82,7 @@ class HillClimbingAlgorithm:
     
     @property
     def part_two_sol(self) -> int:
-        return self.multiple_paths(self.multiple_start_positions)
+        return self.multiple_paths(self.multiple_start_positions())
     
 
 if __name__ == '__main__':
@@ -94,4 +93,4 @@ if __name__ == '__main__':
         data = f.read()
     hill_climbing_algorithm = HillClimbingAlgorithm(data.split('\n'))
     ic(hill_climbing_algorithm.part_one_sol)
-    ic(hill_climbing_algorithm.part_two_sol)
+    print(hill_climbing_algorithm.part_two_sol)

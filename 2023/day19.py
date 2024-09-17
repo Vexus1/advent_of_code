@@ -2,51 +2,50 @@ from dataclasses import dataclass
 import os
 import re
 
-from icecream import ic
+from icecream import ic  # type: ignore
 
 @dataclass
 class Aplenty:
-    _data: str
+    data: str
 
     def __post_init__(self):
-        self.workflows, self.parts = self._divide_data
-        self.names, self.rules, self.destinations = self.parse_workflows
-        self.new_workflow = {l.split("{")[0]: l.split("{")[1][:-1] for l in self.workflows}
+        self.workflows, self.parts = self.divide_data()
+        self.names, self.rules, self.destinations = self.parse_workflows()
+        self.new_workflow = {l.split("{")[0]: l.split("{")[1][:-1]
+                             for l in self.workflows}
         self.start = 'in'
 
-    @property
-    def _divide_data(self) -> tuple[list[str], list[str]]:
-        workflows, parts = self._data.split('\n\n')
+    def divide_data(self) -> tuple[list[str], list[str]]:
+        workflows, parts = self.data.split('\n\n')
         return workflows.split('\n'), parts.split('\n')
     
     def start_index(self, names: list[str]) -> int:
         for i, name in enumerate(names):
             if name == self.start:
                 return i
+        return -1
 
-    def parse_part(self, part: str) -> list[str]:
-        part_dict = {k: int(v) for k, v in re.findall(r"(.)=(\d+)", part)}
-        return part_dict
+    def parse_part(self, part: str) -> dict[str, int]:
+        return {k: int(v) for k, v in re.findall(r"(.)=(\d+)", part)}
     
-    @property
     def parse_workflows(self) -> tuple[list[str], list[list[str]], list[str]]:
         names = []
         rules = []
         destinations = []
         for workflow in self.workflows:
-            workflow = re.search(r'(.*){(.*),(.*)}', workflow).groups()
-            workflow = list(workflow)
+            match = re.search(r'(.*){(.*),(.*)}', workflow)
+            assert match is not None, "Pattern not found"
+            workflow = list(match.groups())
             workflow[1] = workflow[1].split(',')
             names.append(workflow[0])
             rules.append(workflow[1])
             destinations.append(workflow[2])
         return names, rules, destinations
     
-    def parse_rule(self, rule: str) -> tuple[str]:
-        rule = re.findall(r'(\w)([<>]{1})(\d+):(\w+)', rule)[0]
-        return rule
-     
-    def accept_or_reject(self) -> list[str]:
+    def parse_rule(self, rule: str) -> tuple[str, str, str, str]:
+        return re.findall(r'(\w)([<>]{1})(\d+):(\w+)', rule)[0]
+    
+    def accept_or_reject(self) -> list[dict[str, int]]:
         start = self.start_index(self.names)
         accepted_parts = []
         for part in self.parts:
@@ -119,9 +118,9 @@ class Aplenty:
         else:
             val_inv = val - 1
         cond_is_true = self.find_range(cat, gt, val,
-                                          self.acceptance_ranges_inner([rule.split(":")[1]]))
+                                       self.acceptance_ranges_inner([rule.split(":")[1]]))
         cond_is_false = self.find_range(cat, not gt, val_inv,
-                                           self.acceptance_ranges_inner(rules[1:]))
+                                        self.acceptance_ranges_inner(rules[1:]))
         return cond_is_true + cond_is_false
     
     def sum_ranges(self) -> int:
