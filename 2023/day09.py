@@ -1,49 +1,49 @@
-import pandas as pd
+from dataclasses import dataclass
 import os
+from math import comb
+from collections.abc import Callable
 
-os.chdir(os.path.dirname(os.path.abspath(__file__)))
+from icecream import ic  # type: ignore
 
+@dataclass
 class MirageMaintenance:
-    def __init__(self, data: list):
-        self.data = data
-        self.part_one_result: int = 0
-        self.part_two_result: int = 0
-        self._modify_data()
+    data: list[str]
 
-    def _modify_data(self):
-        for i, seq in enumerate(self.data):
-            new_arr = []
-            value = ''
-            for j in seq:
-                if j != ' ':
-                    value += str(j)
-                else:
-                    new_arr.append(int(value))
-                    value = ''
-            new_arr.append(int(value))
-            self.data[i] = new_arr
-                    
-    def extrapolated_values(self) -> int:
-        next_value_in_all_one = []
-        next_value_in_all_two = []
-        for seq in self.data:
-            next_value_one = 0
-            next_value_two = 0
-            temp = [seq]
-            diff = []
-            while set(diff) != {0}:
-                diff = []
-                for i in range(len(seq)-1):
-                    diff.append(seq[i+1]-seq[i])
-                seq = diff
-                temp.append(diff)
-            for i in range(len(temp)-1, -1, -1):
-                next_value_one += temp[i][-1]
-                next_value_two = (temp[i][0] - next_value_two)
-            next_value_in_all_one.append(next_value_one)
-            next_value_in_all_two.append(next_value_two)
-        return sum(next_value_in_all_one), sum(next_value_in_all_two)
+    def lagrange_interpolating1(self, nums: list[int]) -> int:
+        result = 0
+        len_ = len(nums)
+        for i, n in enumerate(nums):
+            result += n * comb(len_, i) * (-1) ** (len_ - 1 - i)
+        return result
+ 
+    def lagrange_interpolating2(self, nums: list[int]) -> int:
+        result = 0
+        len_ = len(nums)
+        for i, n in enumerate(nums):
+            result += n * comb(len_, i + 1) * (-1) ** (i)
+        return result
 
-data = pd.read_csv(f"inputs/day9.txt", header=None)[0].to_list()
-mirage_maintenance = MirageMaintenance(data)
-print(mirage_maintenance.extrapolated_values())
+    def sum_each_history(self, func: Callable) -> int:
+        result = 0
+        for line in self.data:
+            result += func(list(map(int, line.split())))
+        return result
+
+    @property
+    def part_one_sol(self) -> int:
+        return self.sum_each_history(self.lagrange_interpolating1)
+    
+    @property
+    def part_two_sol(self) -> int:
+        return self.sum_each_history(self.lagrange_interpolating2)
+                
+
+if __name__ == '__main__':
+    os.chdir(os.path.dirname(os.path.abspath(__file__)))
+    # PATH = 'inputs/day09_test.txt'
+    PATH = 'inputs/day09.txt'
+    with open(PATH, 'r') as f:
+        data = f.read()
+    mirage_maintenance = MirageMaintenance(data.split('\n'))
+    ic(mirage_maintenance.part_one_sol)
+    ic(mirage_maintenance.part_two_sol)
