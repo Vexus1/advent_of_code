@@ -1,19 +1,21 @@
 from dataclasses import dataclass
 import os
 
-from sympy import Symbol, solve_poly_system
-from icecream import ic
+from sympy import Symbol, solve_poly_system  # type: ignore
+from icecream import ic  # type: ignore
+
+Hailstone = tuple[int, int, int, int, int, int]
 
 @dataclass
 class NeverTellMeTheOdds:
-    _data: str
+    data: list[str]
 
     def __post_init__(self):
         self.hailstones = self.parse_data()
 
-    def parse_data(self) -> list[list[int]]:
+    def parse_data(self) -> list[Hailstone]:
         hailstones = []
-        for line in self._data:
+        for line in self.data:
             position, velocity = line.split('@')
             px, py, pz = list(map(int, position.split(', ')))
             vx, vy, vz = list(map(int, velocity.split(', ')))
@@ -29,7 +31,7 @@ class NeverTellMeTheOdds:
                     intersections += 1
         return intersections
 
-    def find_intersection(self, hailstone_A: list[int], hailstone_B: list[int],
+    def find_intersection(self, hailstone_A: Hailstone, hailstone_B: Hailstone,
                           least: int, most: int) -> bool:
         px1, py1, _, vx1, vy1, _ = hailstone_A
         px2, py2, _, vx2, vy2, _ = hailstone_B
@@ -51,7 +53,8 @@ class NeverTellMeTheOdds:
             return False
         if least <= xpos <= most and least <= ypos <= most:
             return True
-    
+        return False
+
     def find_perfect_position(self) -> tuple[int, int, int]:
         '''Can be done without sympy just by 
            linear algebra for first 3 hailstones'''
@@ -66,9 +69,9 @@ class NeverTellMeTheOdds:
         for i, hailstone in enumerate(self.hailstones[:3]):
             px, py, pz, vx, vy, vz = hailstone
             t = Symbol('t'+str(i)) 
-            eqx = pxS + vxS*t - (px + vx*t)
-            eqy = pyS + vyS*t - (py + vy*t)
-            eqz = pzS + vzS*t - (pz + vz*t)
+            eqx = pxS + vxS * t - (px + vx * t)
+            eqy = pyS + vyS * t - (py + vy * t)
+            eqz = pzS + vzS * t - (pz + vz * t)
             equations.append(eqx)
             equations.append(eqy)
             equations.append(eqz)
@@ -87,7 +90,7 @@ class NeverTellMeTheOdds:
 
 if __name__ == '__main__':
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
-    PATH = 'inputs/day24_test.txt'
+    # PATH = 'inputs/day24_test.txt'
     PATH = 'inputs/day24.txt'
     with open(PATH, 'r') as f:
         data = f.read()

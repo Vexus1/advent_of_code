@@ -1,12 +1,13 @@
 from dataclasses import dataclass
 import os
 import re
+from typing import Optional
 
-from icecream import ic
+from icecream import ic  # type: ignore
 
 @dataclass
 class SandSlabs:
-    _data: str
+    data: list[str]
 
     def __post_init__(self):
         self.bricks = self.parse_data()
@@ -14,17 +15,17 @@ class SandSlabs:
 
     def parse_data(self) -> list[list[int]]:
         bricks = []
-        for line in self._data:
+        for line in self.data:
             brick = [*map(int, re.findall(r'\d+',line))]
             bricks.append(brick)
         bricks.sort(key=lambda z: z[2])
         return bricks
     
-    def drop_brick(self, update_bricks: bool=False,
-                   disintegrated: list[int]=None) -> list[int]:
+    def drop_brick(self, update_bricks: bool = False,
+                   disintegrated: Optional[list[int]] = None) -> int:
         '''Brute force, can be done faster by graph'''
         fell_times = 0
-        heights_map = dict()
+        heights_map: dict[tuple[int, int], int] = dict()
         for brick in self.bricks:
             if brick == disintegrated:
                 continue
@@ -59,7 +60,7 @@ class SandSlabs:
         return self.fallen.count(0)
     
     @property
-    def part_one_sol(self) -> int:
+    def part_one_two(self) -> int:
         return sum(self.fallen)
     
 
@@ -71,3 +72,4 @@ if __name__ == '__main__':
         data = f.read()
     sand_slabs = SandSlabs(data.split('\n'))
     ic(sand_slabs.part_one_sol)
+    ic(sand_slabs.part_one_two)

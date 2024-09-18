@@ -3,31 +3,33 @@ import os
 from collections.abc import Generator
 from collections import defaultdict
 
-from icecream import ic
+from icecream import ic  # type: ignore
 
-T = defaultdict[complex, list[tuple[complex, int]]]
+Edge = tuple[complex, int]
+EdgeSet = set[Edge]
+Graph = defaultdict[complex, EdgeSet]
 
 @dataclass
 class LongWalk:
-    _data: str
+    data: list[str]
 
     def __post_init__(self):
         self.board = self.create_board()
-        self.height = len(self._data) 
-        self.width = len(self._data[0]) 
+        self.height = len(self.data) 
+        self.width = len(self.data[0]) 
         self.start_point = self.find_unique_point(0)
-        self.end_point = self.find_unique_point(len(self._data)-1)
+        self.end_point = self.find_unique_point(len(self.data)-1)
 
     def create_board(self) -> dict[complex, str]:
         pos_map = dict()
-        for y, row in enumerate(self._data):
+        for y, row in enumerate(self.data):
             for x, col in enumerate(row):
                 pos = complex(x, y)
                 pos_map[pos] = col
         return pos_map
     
     def find_unique_point(self, unique_row: int) -> complex:
-        unique_x_point = self._data[unique_row].index('.')
+        unique_x_point = self.data[unique_row].index('.')
         return complex(unique_x_point, unique_row)
        
     def get_neighbours(self, pos: complex) -> Generator[complex]:
@@ -41,8 +43,7 @@ class LongWalk:
                 if self.board[move] == 'v' and move.imag > pos.imag:
                     yield move
 
-    @property
-    def neighbours_without_slope(self) -> T:
+    def neighbours_without_slope(self) -> Graph:
         neighbours = defaultdict(set)
         for pos in self.board:
             if self.board[pos] != '#':
@@ -54,7 +55,7 @@ class LongWalk:
                             neighbours[move].add((pos, 1))
         return neighbours
         
-    def remove_nodes(self, neighbours: T) -> T:
+    def remove_nodes(self, neighbours: Graph) -> Graph:
         while True:
             for node, edge in neighbours.items():
                 if len(edge) == 2:
@@ -76,7 +77,7 @@ class LongWalk:
     def DFS_one(self) -> int:
         '''Iterative version'''
         longest_path = 0
-        seen = set()
+        seen: set[complex] = set()
         stack = [(self.start_point, 0)]
         while stack:
             pos, path_len = stack.pop()
@@ -96,9 +97,9 @@ class LongWalk:
 
     def DFS_two(self) -> int:
         '''Iterative version'''
-        neighbours = self.remove_nodes(self.neighbours_without_slope)
+        neighbours = self.remove_nodes(self.neighbours_without_slope())
         longest_path = 0
-        seen = set()
+        seen: set[complex] = set()
         stack = [(self.start_point, 0)]
         while stack:
             pos, path_len = stack.pop()
@@ -127,7 +128,7 @@ class LongWalk:
 
 if __name__ == '__main__':
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
-    PATH = 'inputs/day23_test.txt'
+    # PATH = 'inputs/day23_test.txt'
     PATH = 'inputs/day23.txt'
     with open(PATH, 'r') as f:
         data = f.read()

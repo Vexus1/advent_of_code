@@ -3,13 +3,13 @@ import os
 from functools import reduce
 import operator
 
-import networkx as nx
+import networkx as nx  # type: ignore
 import matplotlib.pyplot as plt
-from icecream import ic
+from icecream import ic  # type: ignore
 
 @dataclass
 class Snowverload:
-    _data: str
+    data: list[str]
 
     def __post_init__(self):
         self.G = nx.Graph()
@@ -19,17 +19,16 @@ class Snowverload:
     def prod(self, iterable: list[int]) -> int:
         return reduce(operator.mul, iterable, 1)
 
-    @property
     def parse_data(self) -> dict[str, list[str]]:
         nodes_dict = dict()
-        for line in self._data:
+        for line in self.data:
             key, value = line.split(': ')
-            value = [word for word in value.split()]
-            nodes_dict[key] = value
+            values_list = [word for word in value.split()]
+            nodes_dict[key] = values_list
         return nodes_dict
     
     def create_graph(self) -> None:
-        for key, value in self.parse_data.items():
+        for key, value in self.parse_data().items():
             for node in value:
                 self.G.add_edge(key, node)
     

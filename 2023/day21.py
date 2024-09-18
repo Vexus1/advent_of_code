@@ -3,13 +3,13 @@ import os
 from collections import deque
 
 import numpy as np
-from icecream import ic
+from icecream import ic  # type: ignore
 
 @dataclass
 class StepCounter:
-    _data: str
+    data: list[str]
 
-    def create_board(self, data: str) -> dict[complex, str]:
+    def create_board(self, data: list[str]) -> dict[complex, str]:
         board = {}
         for y, row in enumerate(data):
             for x, col in enumerate(row):
@@ -17,24 +17,24 @@ class StepCounter:
                 board[pos] = col
         return board
     
-    @property
     def expanded_data(self) -> list[str]:
         data = []
         for _ in range(5):
-            for line in self._data:
+            for line in self.data:
                 data.append(5 * line.replace("S", "."))
         return data
     
     def gardens_position(self, req_steps: int) -> set[complex]:
+        expanded_data = self.expanded_data()
         if req_steps > 64:
-            height = len(self.expanded_data) 
-            width = len(self.expanded_data[0]) 
-            board = self.create_board(self.expanded_data)
+            height = len(expanded_data) 
+            width = len(expanded_data[0]) 
+            board = self.create_board(expanded_data)
         else:
-            height = len(self._data) 
-            width = len(self._data[0]) 
-            board = self.create_board(self._data)
-        queue = deque()
+            height = len(self.data) 
+            width = len(self.data[0]) 
+            board = self.create_board(self.data)
+        queue: deque[tuple[complex, int]] = deque()
         seen = set()
         result = set()
         mid_point = len(board) // 2
@@ -63,8 +63,8 @@ class StepCounter:
                         queue.append((pos - 1j, steps + 1))
         return result           
 
-    def polynomial_extrapolation(self, req_steps: int) -> int:
-        len_board = len(self._data)
+    def polynomial_extrapolation(self, req_steps: int) -> np.int64:
+        len_board = len(self.data)
         expand_times = req_steps // len_board  
         residue = req_steps % len_board 
         a0 = len(self.gardens_position(residue))
@@ -75,9 +75,6 @@ class StepCounter:
                                         [4, 2, 1]])
         b = np.array([a0, a1, a2])
         x = np.linalg.solve(vandermonde_matrix, b).astype(np.int64)
-        ic(len_board)
-        ic(expand_times)
-        ic(residue)
         quadratic_equation = x[0]*expand_times**2 + x[1]*expand_times + x[2]
         return quadratic_equation
 
@@ -92,7 +89,7 @@ class StepCounter:
 
 if __name__ == '__main__':
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
-    PATH = 'inputs/day21_test.txt'
+    # PATH = 'inputs/day21_test.txt'
     PATH = 'inputs/day21.txt'
     with open(PATH, 'r') as f:
         data = f.read()
