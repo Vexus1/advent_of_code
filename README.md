@@ -1,4 +1,3 @@
-My solutions for [advent of code 2023](https://adventofcode.com/2023) site tasks.
 # Advent of Code Solutions
 Welcome to my repository where I tackle challenges from [Advent of Code](https://adventofcode.com). As of now, I've completed all the puzzles from 2023 and solved 16 days from the 2022 edition. Each solution is written in an object-oriented style, ensuring clear and maintainable code, with strict type checking enforced via MyPy.
 
