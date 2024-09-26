@@ -1,3 +1,4 @@
+from collections import deque
 from dataclasses import dataclass
 import os
 
@@ -6,6 +7,10 @@ from icecream import ic  # type: ignore
 @dataclass
 class BoilingBoulders:
     data: list[str]
+
+    def __post_init__(self):
+        self.cubes = self.parse_cubes()
+        self.min_range, self.max_range = self.create_ranges()
 
     def parse_cubes(self) -> list[tuple[int, int, int]]:
         return [tuple(map(int, line.split(','))) for line in self.data] 
@@ -20,20 +25,47 @@ class BoilingBoulders:
 
     def surface_area(self) -> int:
         exposed = 0
-        cubes = self.parse_cubes()
-        for cube in cubes:
+        for cube in self.cubes:
             for sides in self.locked_sides(cube):
-                if sides not in cubes:
+                if sides not in self.cubes:
                     exposed += 1
         return exposed
     
+    def create_ranges(self) -> tuple[list[int, int, int],
+                                     list[int, int, int]]:
+        min_range = [min(c[i] - 1 for c in self.cubes) for i in range(3)]
+        max_range = [max(c[i] + 1 for c in self.cubes) for i in range(3)]
+        return min_range, max_range
+    
+    def in_space(self, cube: tuple[int, int, int]) -> bool:
+        return all(self.min_range[i] <= cube[i] <= self.max_range[i]
+                   for i in range(3))
+    
+    def exterior_surface_area(self) -> int:
+        '''BFS'''
+        exposed = 0
+        seen = set()
+        q: deque[tuple[int, int, int]] = deque()
+        q.append(tuple(self.min_range))
+        while q:
+            cube = q.popleft()
+            if cube in self.cubes:
+                exposed += 1
+                continue
+            if cube not in seen:
+                seen.add(cube)
+                for sides in self.locked_sides(cube):
+                    if self.in_space(sides):
+                        q.append(sides)
+        return exposed
+
     @property
     def part_one_sol(self) -> int:
         return self.surface_area()
     
-    # @property
-    # def part_two_sol(self) -> int:
-    #     return 
+    @property
+    def part_two_sol(self) -> int:
+        return self.exterior_surface_area()
 
 
 if __name__ == '__main__':
@@ -44,4 +76,4 @@ if __name__ == '__main__':
         data = f.read()
     boiling_boulders = BoilingBoulders(data.split('\n'))
     ic(boiling_boulders.part_one_sol)
-    # ic(boiling_boulders.part_two_sol)
+    ic(boiling_boulders.part_two_sol)
