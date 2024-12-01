@@ -1,5 +1,6 @@
 import os 
 from dataclasses import dataclass
+from collections import Counter
 
 from icecream import ic # type: ignore
 
@@ -18,14 +19,18 @@ class HistorianHysteria:
     def total_distance(self) -> int:
         distance = sum(abs(l - r) for l, r in zip(self.left, self.right))
         return distance 
-
+    
+    def similarity_score(self) -> int:
+        repeated = Counter(self.right)
+        return sum(l * repeated[l] for l in self.left if l in repeated)
+            
     @property
     def part_one_sol(self) -> int:
         return self.total_distance()
     
     @property
     def part_two_sol(self) -> int:
-        return
+        return self.similarity_score()
 
 
 if __name__ == '__main__':
