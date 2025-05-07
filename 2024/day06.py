@@ -9,6 +9,7 @@ class GuardGallivant:
 
     def __post_init__(self):
         self.grid = self.create_grid()
+        self.part_one, self.part_two = self.eval_results()
 
     def create_grid(self) -> dict[complex, str]:
         grid = {}
@@ -20,51 +21,31 @@ class GuardGallivant:
     
     def starting_position(self) -> complex:
         return list(self.grid.keys())[list(self.grid.values()).index('^')]
-    
-    def rotate_step(self, step: complex) -> complex:
-        match step:
-            case -1j:
-                step = 1
-            case 1:
-                step = 1j
-            case 1j:
-                step = -1
-            case -1:
-                step = -1j
-        return step
-    
-    def count_distinct_positions(self) -> int:
-        start = self.starting_position()
-        max_widht = len(self.data[0])
-        max_height = len(self.data)
-        step = -1j
-        count = 1
-        while True:
-            if (start.real + step.real >= max_widht or 
-                start.imag + step.imag >= max_height or
-                start.real - step.real < 0 or
-                start.imag + step.imag < 0):
-                break
-            if self.grid[start + step] == '#':
-                step = self.rotate_step(step)
-            if self.grid[start] != 'X':
-                count += 1
-            self.grid[start] = 'X'
-            start += step
-        return count
 
-    @property
-    def part_one(self) -> int:
-        return self.count_distinct_positions()
+    def start_walk(self, grid: dict[complex, str]) -> tuple[set[complex], bool]:
+        pos = self.starting_position()
+        dir = -1j
+        seen = set()
+        while pos in grid and (pos, dir) not in seen:
+            seen |= {(pos, dir)}
+            if grid.get(pos + dir) == '#':
+                dir *= 1j
+            else:
+                pos += dir
+        guard_path = {path for path, _ in seen}
+        options = (pos, dir) in seen
+        return guard_path, options
     
-    @property
-    def part_two(self) -> int:
-        return 
+    def eval_results(self) -> tuple[int, int]:
+        guard_path = self.start_walk(self.grid)[0]
+        paradoxes = sum(self.start_walk(self.grid | {o: '#'})[1] 
+                                        for o in guard_path)
+        return len(guard_path), paradoxes
 
 
 if __name__ == '__main__': 
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
-    PATH = 'inputs/day06_test.txt'
+    # PATH = 'inputs/day06_test.txt'
     PATH = 'inputs/day06.txt'
     with open(PATH, 'r') as f:
         data = f.read()
