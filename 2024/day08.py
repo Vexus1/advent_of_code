@@ -1,6 +1,8 @@
 import os 
 from dataclasses import dataclass
 from collections import defaultdict
+from itertools import combinations
+from typing import Iterator
 
 from icecream import ic # type: ignore
 
@@ -8,7 +10,10 @@ from icecream import ic # type: ignore
 class ResonantCollinearity:
     data: list[str]
 
-    def antenna_location(self) -> dict[complex, str]:
+    def __post_init__(self):
+        self.part_one, self.part_two = self.antinode_locations()
+
+    def antenna_location(self) -> defaultdict[str, list[complex]]:
         loc = defaultdict(list)
         for i, row in enumerate(self.data):
             for j, col in enumerate(row):
@@ -19,32 +24,31 @@ class ResonantCollinearity:
 
     def is_in_grid(self, pos: complex) -> bool:
         return (0 <= pos.real < len(self.data[0]) and 
-                0 <= pos.imag < len(self.data))
+                0 <= pos.imag < len(self.data))    
     
-    # def find_antinode(self, p1: complex, p2: complex):
-        
+    def antinode_line(self, start: complex, step: complex) -> Iterator[complex]:
+        p = start + step
+        while self.is_in_grid(p):
+            yield p
+            p += step
 
-    def antinode_locations(self) -> int:
+    def antinode_locations(self) -> tuple[int, int]:
         antenna_loc = self.antenna_location()
-        antinodes = set()
+        antinodes1, antinodes2 = set(), set()
         for locs in antenna_loc.values():
-            for i in range(len(locs)):
-                for j in range(i + 1, len(locs)):
-                    p1, p2 = locs[i], locs[j]
-                    dp = p2 - p1
-                    if self.is_in_grid(p1 - dp):
-                        antinodes.add(p1 - dp)
-                    if self.is_in_grid(p2 + dp):
-                        antinodes.add(p2 + dp)
-        return len(antinodes)
+            for p1, p2 in combinations(locs, 2):
+                step = p2 - p1
+                for candidate in (p1 - step, p2 + step):
+                    if self.is_in_grid(candidate):
+                        antinodes1.add(candidate)
+                antinodes2.add(p1)
+                antinodes2.add(p2)
+                for p in self.antinode_line(p1, step):
+                    antinodes2.add(p)
+                for p in self.antinode_line(p1, -step):
+                    antinodes2.add(p)
+        return len(antinodes1), len(antinodes2)
 
-    @property
-    def part_one(self) -> int:
-        return self.antinode_locations()
-    
-    @property
-    def part_two(self) -> int:
-        return 
 
 if __name__ == '__main__':
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
