@@ -9,13 +9,13 @@ class DiskFragmenter:
 
     def eval_nums(self) -> list[str]:
         blocks = []
-        id = 0
+        file_id = 0
         for i, n in enumerate(self.data):
             if i % 2 == 0:
-                blocks.extend([str(id)] * int(n))
-                id += 1
+                blocks.extend([str(file_id)] * int(n))
+                file_id += 1
             else:
-                blocks.extend('.' * int(n))
+                blocks.extend(['.'] * int(n))
         return blocks
     
     def move_blocks(self, blocks: list[str]) -> list[str]:
@@ -32,18 +32,46 @@ class DiskFragmenter:
                 moved_blocks[i] = stack.pop()
                 count_moves += 1
         return moved_blocks[:-dots]
-
-    def calc_checksum(self) -> int:
-        filesystem = self.move_blocks(self.eval_nums())
-        return sum([i*int(n) for i, n in enumerate(filesystem)])
+    
+    def create_file_map(self) -> tuple[list[tuple[int, int]],
+                                       list[tuple[int, int]]]:
+        disks = []
+        spaces = []
+        pos = 0
+        for i, length in enumerate(map(int, self.data)):
+            pair = (pos, length)
+            if i % 2 == 0:
+                disks.append(pair)
+            else:
+                spaces.append(pair)
+            pos += length
+        return disks, spaces
+    
+    def move_whole_files(self) -> list[tuple[int, int]]:
+        disks, spaces = self.create_file_map()
+        for i in range(len(disks) - 1, -1, -1):
+            dpos, dlen = disks[i]
+            for j, (spos, slen) in enumerate(spaces):
+                if slen == 0:
+                    continue
+                if spos >= dpos:
+                    break
+                if slen >= dlen:
+                    disks[i] = (spos, dlen)
+                    spaces[j] = (spos + dlen, slen - dlen)
+                    break
+        return disks
 
     @property
     def part_one(self) -> int:
-        return self.calc_checksum()
+        filesystem = self.move_blocks(self.eval_nums())
+        return sum([i*int(n) for i, n in enumerate(filesystem)])
     
     @property
     def part_two(self) -> int:
-        return 
+        filesystem = self.move_whole_files()
+        return sum(i * dlen * (2 * dpos + dlen - 1) 
+                   for i, (dpos, dlen) in enumerate(filesystem)) // 2
 
 
 if __name__ == '__main__':
@@ -55,4 +83,3 @@ if __name__ == '__main__':
     disk_fragmenter = DiskFragmenter(data)
     ic(disk_fragmenter.part_one)
     ic(disk_fragmenter.part_two)
-    
