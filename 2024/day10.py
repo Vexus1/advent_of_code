@@ -2,7 +2,7 @@ import os
 from dataclasses import dataclass
 from collections.abc import Callable
 
-from icecream import ic
+from icecream import ic  # type: ignore
 
 DIRS = (1, 1j, -1, -1J)
 
@@ -40,7 +40,43 @@ class HoofIT:
                 if next in self.grid and self.grid[next] == target:
                     stack.append(next)
         return len(reached)
-
+    
+    def neighbors(self, pos: complex) -> list[complex]:
+        num = self.grid[pos]
+        target = num + 1
+        out = []
+        for dir in DIRS:
+            next = pos + dir
+            if self.grid.get(next, -1) == target:
+                out.append(next)
+        return out
+    
+    def DFS_post_order(self, pos: complex) -> int:
+        count = {}
+        children = {}
+        stack = [(pos, 0)]
+        while stack:
+            pos, idx = stack[-1]
+            if self.grid[pos] == 9:
+                count[pos] = 1
+                stack.pop()
+                continue
+            if pos not in children:
+                children[pos] = self.neighbors(pos)
+            neigh = children[pos]
+            if idx < len(neigh):
+                next = neigh[idx]
+                stack[-1] = (pos, idx + 1)
+                if next not in count:
+                    stack.append((next, 0))
+            else:
+                total = 0
+                for n in neigh:
+                    total += count.get(n, 0)
+                count[pos] = total
+                stack.pop()
+        return count.get(pos, 0)
+    
     def count_trailheads(self, method: Callable[[complex], int]) -> int:
         result = 0
         for pos, num in self.grid.items():
@@ -54,7 +90,7 @@ class HoofIT:
     
     @property
     def part_two(self) -> int:
-        return 
+        return self.count_trailheads(self.DFS_post_order)
 
 
 if __name__ == '__main__':
