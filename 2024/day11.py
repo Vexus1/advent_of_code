@@ -43,7 +43,7 @@ class PlutonianPebbles:
     
     @property
     def part_two(self) -> int:
-        return 
+        return self.stones_number(75)
 
 
 if __name__ == '__main__':
