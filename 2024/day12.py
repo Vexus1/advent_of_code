@@ -11,6 +11,7 @@ class GardenGroups:
     def __post_init__(self):
         self.grid = self.create_grid()
         self.visited = set()
+        self.part_one, self.part_two = self.total_price()
 
     def create_grid(self) -> dict[complex, str]:
         grid = {}
@@ -19,10 +20,32 @@ class GardenGroups:
                 pos = complex(i, j)
                 grid[pos] = col
         return grid
-
-    def bfs(self, pos: complex, char: str) -> int:
+    
+    def count_edges(self, region: set[complex]) -> int:
+        row_indices = [int(p.real) for p in region]
+        col_indices = [int(p.imag) for p in region]
+        r_min, r_max = min(row_indices) - 1, max(row_indices) + 1
+        c_min, c_max = min(col_indices) - 1, max(col_indices) + 1
+        sides = 0
+        for row in range(r_min, r_max):
+            for col in range(c_min, c_max):
+                top_left = complex(row, col) in region
+                bottom_left = complex(row+1, col) in region
+                top_right = complex(row, col+1) in region
+                bottom_right = complex(row+1, col+1) in region
+                count = top_left + bottom_left + top_right + bottom_right
+                if count == 1 or count == 3:
+                    sides += 1
+                elif count == 2:
+                    if ((top_left and bottom_right) or 
+                        (bottom_left and top_right)):
+                        sides += 2
+        return sides
+    
+    def bfs(self, pos: complex, char: str) -> tuple[int, int, set[complex]]:
         queue = deque([pos])
         self.visited.add(pos)
+        region = set([pos])
         area = 0
         perimeter = 0
         while queue:
@@ -34,23 +57,19 @@ class GardenGroups:
                     perimeter += 1
                 elif next not in self.visited:
                     self.visited.add(next)
+                    region.add(next)
                     queue.append(next)
-        return area * perimeter
+        return area, perimeter, region
 
-    def total_price(self) -> int:
-        total = 0
+    def total_price(self) -> tuple[int, int]:
+        part_one = 0
+        part_two = 0
         for pos, char in self.grid.items():
             if pos not in self.visited:
-                total += self.bfs(pos, char)
-        return total
-
-    @property
-    def part_one(self) -> int:
-        return self.total_price()
-    
-    @property
-    def part_two(self) -> int:
-        return 
+                area, perimeter, region = self.bfs(pos, char)
+                part_one += area * perimeter
+                part_two += area * self.count_edges(region)
+        return part_one, part_two
 
 
 if __name__ == '__main__':
