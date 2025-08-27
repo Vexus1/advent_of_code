@@ -26,12 +26,15 @@ class ClawContraption:
         return a // delta, b // delta
 
 
-    def calc_tokens(self) -> int:
+    def calc_tokens(self, increase_prize: bool) -> int:
         total = 0
         for i in range(0, len(self.data) - 1, 4):
             ax, ay = self.parse_data(self.data[i])
             bx, by = self.parse_data(self.data[i + 1])
             px, py = self.parse_data(self.data[i + 2])
+            if increase_prize:
+                px += 10000000000000
+                py += 10000000000000
             a, b = self.find_intersections(ax, ay, bx, by, px, py)
             if (a * ax + b * bx == px) and (a * ay + b * by == py):
                 total += a * 3 + b
@@ -39,11 +42,11 @@ class ClawContraption:
             
     @property
     def part_one(self) -> int:
-        return self.calc_tokens()
+        return self.calc_tokens(False)
     
     @property
     def part_two(self) -> int:
-        return 
+        return self.calc_tokens(True)
 
 
 if __name__ == '__main__':
