@@ -25,6 +25,23 @@ class BinaryDiagnostic:
                 epsilon_rate += '0'
         power = int(gamma_rate, 2) * int(epsilon_rate, 2)
         return power
+    
+    def rating(self, most_common: bool) -> int:
+        report = self.data[:]
+        bit = 0
+        while len(report) != 1:
+            ones = sum(num[bit] == '1' for num in report)
+            zeros = len(report) - ones
+            if most_common:
+                target = '1' if ones >= zeros else '0'
+            else:
+                target = '0' if ones >= zeros else '1'
+            report = [num for num in report if num[bit] == target]
+            bit += 1
+        return int(report[0], 2)
+
+    def support_rating(self) -> int:
+        return self.rating(True) * self.rating(False)
             
     @property
     def part_one_sol(self) -> int:
@@ -32,7 +49,7 @@ class BinaryDiagnostic:
     
     @property
     def part_two_sol(self) -> int:
-        return 
+        return self.support_rating()
     
 
 if __name__ == '__main__':
